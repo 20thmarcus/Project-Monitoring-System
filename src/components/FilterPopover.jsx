@@ -66,19 +66,13 @@ import {
             color={filterStatuses.length > 0 ? "blue.300" : ""}
             leftIcon={<Icon as={FilterIcon} fontSize={18} />}
           >
-            Filter
+            Filter by Status
           </Button>
         </PopoverTrigger>
         <PopoverContent>
           <PopoverArrow />
           <PopoverCloseButton />
           <PopoverBody>
-            <Text fontSize="md" fontWeight="bold" mb={4}>
-              Filter By:
-            </Text>
-            <Text fontWeight="bold" color="gray.400" mb={1}>
-              Status
-            </Text>
             <VStack align="flex-start" spacing={1}>
               {STATUSES.map((status) => (
                 <StatusItem

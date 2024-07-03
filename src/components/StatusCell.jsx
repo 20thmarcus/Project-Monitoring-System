@@ -1,8 +1,23 @@
-import { Box, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import { Box, Menu, MenuButton, MenuItem, MenuList, Text } from "@chakra-ui/react";
 import { STATUSES } from "../data";
 
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="12px" h="12px" bg={color} borderRadius="3px" {...props} />
+);
+
+const Pill = ({ color, children }) => (
+  <Box
+    px={5}
+    py={1}
+    bg={color || "transparent"}
+    borderRadius="15px"
+    display="inline-flex"
+    alignItems="center"
+  >
+    <Text color="gray.900" fontWeight="bold">
+      {children}
+    </Text>
+  </Box>
 );
 
 const StatusCell = ({ getValue, row, column, table }) => {
@@ -15,10 +30,10 @@ const StatusCell = ({ getValue, row, column, table }) => {
         w="100%"
         textAlign="left"
         p={1.5}
-        bg={color || "transparent"}
+        bg="transparent"
         color="gray.900"
       >
-        {name}
+        <Pill color={color}>{name}</Pill>
       </MenuButton>
       <MenuList>
         <MenuItem onClick={() => updateData(row.index, column.id, null)}>
@@ -38,4 +53,5 @@ const StatusCell = ({ getValue, row, column, table }) => {
     </Menu>
   );
 };
+
 export default StatusCell;

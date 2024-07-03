@@ -15,15 +15,16 @@ import DateCell from "./DateCell";
 import Filters from "./Filters";
 import SortIcon from "./icons/SortIcon";
 import EditableCellNumber from "./EditableCellNumber";
+import ModuleCell from "./ModuleCell";
+import InChargeCell from "./InChargeCell";
 
 const columns = [
   {
     accessorKey: "module",
     header: "Module",
     size: 225,
-    cell: EditableCell,
+    cell: ModuleCell,
     enableColumnFilter: true,
-    filterFn: "includesString",
   },
   {
     accessorKey: "task",
@@ -46,8 +47,8 @@ const columns = [
     cell: DateCell,
   },
   {
-    accessorKey: "inCharge",
-    header: "In-Charge",
+    accessorKey: "status",
+    header: "Status",
     cell: StatusCell,
     enableSorting: false,
     enableColumnFilter: true,
@@ -58,9 +59,9 @@ const columns = [
     },
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: StatusCell,
+    accessorKey: "incharge",
+    header: "In-Charge",
+    cell: InChargeCell,
     enableSorting: false,
     enableColumnFilter: true,
     filterFn: (row, columnId, filterStatuses) => {
@@ -75,7 +76,7 @@ const columns = [
     cell: DateCell,
   },
   {
-    accessorKey: "end_date",
+    accessorKey: "endDate",
     header: "End Date",
     cell: DateCell,
   },
