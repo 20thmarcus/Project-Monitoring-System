@@ -1,14 +1,13 @@
-import { useState } from "react";
-import { Box, Button, ButtonGroup, Icon, Text } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
+import { Box, Button, Icon } from "@chakra-ui/react";
 import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import DATA from "../data";
+import DATA, { STATUSES } from "../data";
 import EditableCell from "./EditableCell";
 import StatusCell from "./StatusCell";
 import DateCell from "./DateCell";
@@ -52,10 +51,10 @@ const columns = [
     cell: StatusCell,
     enableSorting: false,
     enableColumnFilter: true,
-    filterFn: (row, columnId, filterStatuses) => {
-      if (filterStatuses.length === 0) return true;
+    filterFn: (row, columnId, filterStatus) => {
+      if (filterStatus.length === 0) return true;
       const status = row.getValue(columnId);
-      return filterStatuses.includes(status?.id);
+      return filterStatus.includes(status?.id);
     },
   },
   {
@@ -64,14 +63,14 @@ const columns = [
     cell: InChargeCell,
     enableSorting: false,
     enableColumnFilter: true,
-    filterFn: (row, columnId, filterStatuses) => {
-      if (filterStatuses.length === 0) return true;
-      const status = row.getValue(columnId);
-      return filterStatuses.includes(status?.id);
+    filterFn: (row, columnId, filterIncharge) => {
+      if (filterIncharge.length === 0) return true;
+      const incharge = row.getValue(columnId);
+      return filterIncharge.includes(incharge?.id);
     },
   },
   {
-    accessorKey: "due",
+    accessorKey: "startDate",
     header: "Start Date",
     cell: DateCell,
   },
@@ -102,42 +101,94 @@ const columns = [
   },
 ];
 
-const TaskTable = () => {
+const TaskTable = ({ projectID }) => {
   const [data, setData] = useState(DATA);
   const [columnFilters, setColumnFilters] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [isSaved, setIsSaved] = useState(data.map(() => true));
+
+  useEffect(() => {
+    if (projectID) {
+      setFilteredData(data.filter((item) => item.projectID === projectID));
+    } else {
+      setFilteredData(data);
+    }
+  }, [projectID, data]);
+
+  const validateRow = (row) => {
+    if (!row.module || !row.task || !row.budgetHours || !row.targetDate || !row.status) {
+      return false;
+    }
+    if (row.status === STATUSES[1] && !row.startDate) {
+      return false;
+    }
+    if (row.status === STATUSES[2] && (!row.startDate || !row.endDate || !row.actualHours)) {
+      return false;
+    }
+    return true;
+  };
+
+  const saveData = (newData) => {
+    setTimeout(() => {
+      setIsSaved(newData.map(row => validateRow(row)));
+    }, 1000);
+  };
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     state: {
       columnFilters,
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     columnResizeMode: "onChange",
     meta: {
       updateData: (rowIndex, columnId, value) =>
-        setData((prev) =>
-          prev.map((row, index) =>
+        setData((prev) => {
+          const newData = prev.map((row, index) =>
             index === rowIndex
               ? {
                   ...prev[rowIndex],
                   [columnId]: value,
                 }
               : row
-          )
-        ),
+          );
+          saveData(newData);
+          return newData;
+        }),
     },
   });
 
+  const addRow = () => {
+    setData((prev) => [
+      ...prev,
+      {
+        module: "",
+        task: "",
+        budgetHours: "",
+        targetDate: "",
+        status: STATUSES[0],
+        incharge: "",
+        startDate: "",
+        endDate: "",
+        actualHours: "",
+        leadTime: "",
+        notes: "",
+      },
+    ]);
+    setIsSaved((prev) => [...prev, false]);
+  };
+
+  useEffect(() => {
+    saveData(data);
+  }, [data]);
+
   return (
-    <Box>
-      <Filters
-        columnFilters={columnFilters}
-        setColumnFilters={setColumnFilters}
-      />
+    <Box ml={10}>
+      <Filters columnFilters={columnFilters} setColumnFilters={setColumnFilters} />
+      <Button onClick={addRow} colorScheme="blue" mb={4}>Add Row</Button>
       <Box className="table" w={table.getTotalSize()}>
         {table.getHeaderGroups().map((headerGroup) => (
           <Box className="tr" key={headerGroup.id}>
@@ -169,8 +220,12 @@ const TaskTable = () => {
             ))}
           </Box>
         ))}
-        {table.getRowModel().rows.map((row) => (
-          <Box className="tr" key={row.id}>
+        {table.getRowModel().rows.map((row, rowIndex) => (
+          <Box
+            className="tr"
+            key={row.id}
+            border={isSaved[rowIndex] ? "1px solid green" : "1px solid red"}
+          >
             {row.getVisibleCells().map((cell) => (
               <Box className="td" w={cell.column.getSize()} key={cell.id}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -179,26 +234,9 @@ const TaskTable = () => {
           </Box>
         ))}
       </Box>
-      <br />
-      <Text mb={2}>
-        Page {table.getState().pagination.pageIndex + 1} of{" "}
-        {table.getPageCount()}
-      </Text>
-      <ButtonGroup size="sm" isAttached variant="outline">
-        <Button
-          onClick={() => table.previousPage()}
-          isDisabled={!table.getCanPreviousPage()}
-        >
-          {"<"}
-        </Button>
-        <Button
-          onClick={() => table.nextPage()}
-          isDisabled={!table.getCanNextPage()}
-        >
-          {">"}
-        </Button>
-      </ButtonGroup>
+      <br /><br /><br /><br /><br /><br /><br /><br />
     </Box>
   );
 };
+
 export default TaskTable;

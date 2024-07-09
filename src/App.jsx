@@ -1,13 +1,20 @@
-import { Box, Heading } from "@chakra-ui/react";
-import TaskTable from "./components/TaskTable";
+import React, { useState } from 'react';
+import SideBar from './pages/global/SideBar';
+import TaskTable from './components/TaskTable';
 
-function App() {
+const App = () => {
+  const [selectedProjectID, setSelectedProjectID] = useState(null);
+  const handleSelectProject = (projectID) => {
+    setSelectedProjectID(projectID);
+  };
   return (
-    <Box maxW={1000} mx="auto" px={6} pt={24} fontSize="sm">
-      <Heading mb={10}>Tuesday.com</Heading>
-      <TaskTable />
-    </Box>
+    <>
+        <SideBar onSelectProject={handleSelectProject} />
+        <TaskTable projectID={selectedProjectID} />
+    </>
+
   );
-}
+};
 
 export default App;
+

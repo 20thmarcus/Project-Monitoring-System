@@ -5,15 +5,17 @@ const EditableCellNumber = ({ getValue, row, column, table }) => {
   const initialValue = getValue();
   const [value, setValue] = useState(initialValue);
 
-  // When the input is blurred, we'll call our table meta's updateData function
   const onBlur = () => {
     table.options.meta?.updateData(row.index, column.id, value);
   };
 
-  // If the initialValue is changed external, sync it up with our state
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
+
+  useEffect(() => {
+    onBlur();
+  }, [value]);
 
   return (
     <NumberInput
@@ -28,7 +30,7 @@ const EditableCellNumber = ({ getValue, row, column, table }) => {
       whiteSpace="nowrap"
       step={0.5}
       precision={1}
-      min={0}
+      min={0.5}
     >
       <NumberInputField />
       <NumberInputStepper sx={{ h: "1rem", w: "1rem" }}>

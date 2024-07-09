@@ -1,4 +1,4 @@
-import { Box, Menu, MenuButton, MenuItem, MenuList, Text } from "@chakra-ui/react";
+import { Box, Menu, MenuButton, MenuItem, MenuList, Text, useToast } from "@chakra-ui/react";
 import { STATUSES } from "../data";
 
 export const ColorIcon = ({ color, ...props }) => (
@@ -8,7 +8,7 @@ export const ColorIcon = ({ color, ...props }) => (
 const Pill = ({ color, children }) => (
   <Box
     px={5}
-    py={1}
+    py={0.5}
     bg={color || "transparent"}
     borderRadius="15px"
     display="inline-flex"
@@ -23,6 +23,27 @@ const Pill = ({ color, children }) => (
 const StatusCell = ({ getValue, row, column, table }) => {
   const { name, color } = getValue() || {};
   const { updateData } = table.options.meta;
+  const toast = useToast();
+
+  const handleStatusChange = (status) => {
+    const { module, task, budgetHours, targetDate, incharge } = row.original;
+    if (
+      status.name === "In-Progress" || status.name === "Done"
+    ) {
+      if (!module || !task || !budgetHours || !targetDate || !incharge) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required fields before changing the status.",
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+    }
+    updateData(row.index, column.id, status);
+  };
+
   return (
     <Menu isLazy offset={[0, 0]} flip={false} autoSelect={false}>
       <MenuButton
@@ -36,13 +57,10 @@ const StatusCell = ({ getValue, row, column, table }) => {
         <Pill color={color}>{name}</Pill>
       </MenuButton>
       <MenuList>
-        <MenuItem onClick={() => updateData(row.index, column.id, null)}>
-          <ColorIcon color="red.400" mr={3} />
-          None
-        </MenuItem>
+
         {STATUSES.map((status) => (
           <MenuItem
-            onClick={() => updateData(row.index, column.id, status)}
+            onClick={() => handleStatusChange(status)}
             key={status.id}
           >
             <ColorIcon color={status.color} mr={3} />
