@@ -68,7 +68,7 @@ const TaskTable = ({ projectID }) => {
     {
       accessorKey: "validationStatus",
       header: "",
-      size: 1.,
+      size: 1,
       cell: ({ row }) => (
         <ColorIcon
           color={isSaved[row.index] ? "green.400" : "red.400"}
@@ -235,13 +235,24 @@ const TaskTable = ({ projectID }) => {
         {table.getHeaderGroups().map((headerGroup) => (
           <Box className="tr" key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <Box className="th" w={header.getSize()} key={header.id}>
+              <Box 
+                className="th" 
+                w={header.getSize()} 
+                key={header.id}
+                // display="flex"
+                // alignItems="center"
+                // justifyContent="center"
+                // padding="8px"
+                // borderBottom="1px solid #ccc"
+                // backgroundColor="#f9f9f9"
+                // fontWeight="bold"
+              >
                 {header.column.columnDef.header}
                 {header.column.getCanSort() && (
                   <Icon
                     as={SortIcon}
                     mx={3}
-                    fontSize={14}
+                    fontSize="sm"
                     onClick={header.column.getToggleSortingHandler()}
                   />
                 )}
@@ -265,7 +276,18 @@ const TaskTable = ({ projectID }) => {
         {table.getRowModel().rows.map((row, rowIndex) => (
           <Box className="tr" key={row.id}>
             {row.getVisibleCells().map((cell) => (
-              <Box className="td" w={cell.column.getSize()} key={cell.id}>
+              <Box
+                className="td"
+                w={cell.column.getSize()}
+                key={cell.id}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                // padding="8px"
+                // borderBottom="1px solid #ccc"
+                // backgroundColor="#fff"
+                fontSize="sm"
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </Box>
             ))}

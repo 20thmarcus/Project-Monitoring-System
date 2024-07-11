@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Input, VStack, Box, Editable, EditableInput, EditablePreview, Flex, IconButton } from '@chakra-ui/react';
+import {
+  Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton,
+  Input, VStack, Box, Editable, EditableInput, EditablePreview, Flex, IconButton
+} from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 
 const SideBar = ({ onSelectProject, isOpen, onClose }) => {
@@ -18,7 +21,9 @@ const SideBar = ({ onSelectProject, isOpen, onClose }) => {
   };
 
   const deleteComponent = (index) => {
+    console.log('Deleting component at index:', index);
     const updatedComponents = components.filter((_, i) => i !== index);
+    console.log('Updated components:', updatedComponents);
     setComponents(updatedComponents);
     updateLocalStorage(updatedComponents);
   };
@@ -58,17 +63,23 @@ const SideBar = ({ onSelectProject, isOpen, onClose }) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <AddIcon onClick={addComponent} ml={4} mt={3} aria-label="Add Project"/>
+            <IconButton
+              icon={<AddIcon />}
+              ml={4}
+              mt={3}
+              aria-label="Add Project"
+              onClick={addComponent}
+            />
           </Flex>
           <Box
             p={4}
             borderWidth={1}
             borderRadius="lg"
             w="100%"
-            onClick={() => handleComponentClick()}
             cursor="pointer"
             position="relative"
             mb={4}
+            onClick={() => handleComponentClick(-1)}
             _hover={{ backgroundColor: 'gray.900' }}
           >
             Summary
@@ -81,9 +92,9 @@ const SideBar = ({ onSelectProject, isOpen, onClose }) => {
                 borderWidth={1}
                 borderRadius="lg"
                 w="100%"
-                onClick={() => handleComponentClick(index)}
                 cursor="pointer"
                 position="relative"
+                onClick={() => handleComponentClick(index)}
                 _hover={{ backgroundColor: 'gray.900' }}
               >
                 <Editable defaultValue={component} onSubmit={(newName) => handleRename(index, newName)}>
