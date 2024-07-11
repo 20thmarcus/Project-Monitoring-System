@@ -1,7 +1,7 @@
 import { NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
-const EditableCellNumber = ({ getValue, row, column, table }) => {
+const LeadTimeCell = ({ getValue, row, column, table }) => {
   const initialValue = getValue();
   const [value, setValue] = useState(initialValue);
 
@@ -28,9 +28,9 @@ const EditableCellNumber = ({ getValue, row, column, table }) => {
       overflow="hidden"
       textOverflow="ellipsis"
       whiteSpace="nowrap"
-      step={0.5}
+      step={1}
       precision={1}
-      min={0.5}
+      min={0}
     >
       <NumberInputField />
       <NumberInputStepper sx={{ h: "1rem", w: "1rem" }}>
@@ -40,4 +40,4 @@ const EditableCellNumber = ({ getValue, row, column, table }) => {
     </NumberInput>
   );
 };
-export default EditableCellNumber;
+export default LeadTimeCell;

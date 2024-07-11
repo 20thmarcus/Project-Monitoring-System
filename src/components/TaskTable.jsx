@@ -13,93 +13,14 @@ import StatusCell from "./StatusCell";
 import DateCell from "./DateCell";
 import Filters from "./Filters";
 import SortIcon from "./icons/SortIcon";
-import EditableCellNumber from "./EditableCellNumber";
+import HoursCell from "./HoursCell";
 import ModuleCell from "./ModuleCell";
 import InChargeCell from "./InChargeCell";
+import LeadTimeCell from "./LeadTimeCell";
 
-const columns = [
-  {
-    accessorKey: "module",
-    header: "Module",
-    size: 225,
-    cell: ModuleCell,
-    enableColumnFilter: true,
-  },
-  {
-    accessorKey: "task",
-    header: "Task",
-    size: 225,
-    cell: EditableCell,
-    enableColumnFilter: true,
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "budgetHours",
-    header: "Budget Hours",
-    cell: EditableCellNumber,
-    enableColumnFilter: true,
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "targetDate",
-    header: "Target Date",
-    cell: DateCell,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: StatusCell,
-    enableSorting: false,
-    enableColumnFilter: true,
-    filterFn: (row, columnId, filterStatus) => {
-      if (filterStatus.length === 0) return true;
-      const status = row.getValue(columnId);
-      return filterStatus.includes(status?.id);
-    },
-  },
-  {
-    accessorKey: "incharge",
-    header: "In-Charge",
-    cell: InChargeCell,
-    enableSorting: false,
-    enableColumnFilter: true,
-    filterFn: (row, columnId, filterIncharge) => {
-      if (filterIncharge.length === 0) return true;
-      const incharge = row.getValue(columnId);
-      return filterIncharge.includes(incharge?.id);
-    },
-  },
-  {
-    accessorKey: "startDate",
-    header: "Start Date",
-    cell: DateCell,
-  },
-  {
-    accessorKey: "endDate",
-    header: "End Date",
-    cell: DateCell,
-  },
-  {
-    accessorKey: "actualHours",
-    header: "Actual Hours",
-    cell: EditableCellNumber,
-    enableColumnFilter: true,
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "leadTime",
-    header: "Lead Time",
-    cell: EditableCell,
-    enableColumnFilter: true,
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "notes",
-    header: "Notes",
-    size: 225,
-    cell: EditableCell,
-  },
-];
+export const ColorIcon = ({ color, ...props }) => (
+  <Box w="16px" h="16px" bg={color} borderRadius="3px" {...props} />
+);
 
 const TaskTable = ({ projectID }) => {
   const [data, setData] = useState(DATA);
@@ -134,6 +55,119 @@ const TaskTable = ({ projectID }) => {
     }, 1000);
   };
 
+  const deleteRow = (rowIndex) => {
+    console.log("Deleting row:", rowIndex); // Debug log
+    setData((prev) => {
+      const newData = prev.filter((_, index) => index !== rowIndex);
+      saveData(newData);
+      return newData;
+    });
+  };
+
+  const columns = [
+    {
+      accessorKey: "validationStatus",
+      header: "",
+      size: 1.,
+      cell: ({ row }) => (
+        <ColorIcon
+          color={isSaved[row.index] ? "green.400" : "red.400"}
+          mr={3}
+        />
+      ),
+    },
+    {
+      accessorKey: "module",
+      header: "Module",
+      size: 225,
+      cell: ModuleCell,
+      enableColumnFilter: true,
+    },
+    {
+      accessorKey: "task",
+      header: "Task",
+      size: 225,
+      cell: EditableCell,
+      enableColumnFilter: true,
+      filterFn: "includesString",
+    },
+    {
+      accessorKey: "budgetHours",
+      header: "Budget Hours",
+      cell: HoursCell,
+      enableColumnFilter: true,
+      filterFn: "includesString",
+    },
+    {
+      accessorKey: "targetDate",
+      header: "Target Date",
+      cell: DateCell,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: StatusCell,
+      enableSorting: false,
+      enableColumnFilter: true,
+      filterFn: (row, columnId, filterStatus) => {
+        if (filterStatus.length === 0) return true;
+        const status = row.getValue(columnId);
+        return filterStatus.includes(status?.id);
+      },
+    },
+    {
+      accessorKey: "incharge",
+      header: "In-Charge",
+      cell: InChargeCell,
+      enableSorting: false,
+      enableColumnFilter: true,
+      filterFn: (row, columnId, filterIncharge) => {
+        if (filterIncharge.length === 0) return true;
+        const incharge = row.getValue(columnId);
+        return filterIncharge.includes(incharge?.id);
+      },
+    },
+    {
+      accessorKey: "startDate",
+      header: "Start Date",
+      cell: DateCell,
+    },
+    {
+      accessorKey: "endDate",
+      header: "End Date",
+      cell: DateCell,
+    },
+    {
+      accessorKey: "actualHours",
+      header: "Actual Hours",
+      cell: HoursCell,
+      enableColumnFilter: true,
+      filterFn: "includesString",
+    },
+    {
+      accessorKey: "leadTime",
+      header: "Lead Time",
+      cell: LeadTimeCell,
+      enableColumnFilter: true,
+      filterFn: "includesString",
+    },
+    {
+      accessorKey: "notes",
+      header: "Notes",
+      size: 225,
+      cell: EditableCell,
+    },
+    {
+      accessorKey: "delete",
+      header: "Delete",
+      cell: ({ row }) => (
+        <Button colorScheme="red" onClick={() => deleteRow(row.index)}>
+          Delete
+        </Button>
+      ),
+    },
+  ];
+
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -162,6 +196,11 @@ const TaskTable = ({ projectID }) => {
   });
 
   const addRow = () => {
+    if (!projectID) {
+      alert("Please select a project before adding a row.");
+      return;
+    }
+
     setData((prev) => [
       ...prev,
       {
@@ -176,6 +215,7 @@ const TaskTable = ({ projectID }) => {
         actualHours: "",
         leadTime: "",
         notes: "",
+        projectID: projectID, // Ensure projectID is set for new rows
       },
     ]);
     setIsSaved((prev) => [...prev, false]);
@@ -186,9 +226,11 @@ const TaskTable = ({ projectID }) => {
   }, [data]);
 
   return (
-    <Box ml={10}>
+    <Box ml={10} mt="150px">
       <Filters columnFilters={columnFilters} setColumnFilters={setColumnFilters} />
-      <Button onClick={addRow} colorScheme="blue" mb={4}>Add Row</Button>
+      <Button onClick={addRow} colorScheme="blue" mb={4}>
+        Add Row
+      </Button>
       <Box className="table" w={table.getTotalSize()}>
         {table.getHeaderGroups().map((headerGroup) => (
           <Box className="tr" key={headerGroup.id}>
@@ -221,11 +263,7 @@ const TaskTable = ({ projectID }) => {
           </Box>
         ))}
         {table.getRowModel().rows.map((row, rowIndex) => (
-          <Box
-            className="tr"
-            key={row.id}
-            border={isSaved[rowIndex] ? "1px solid green" : "1px solid red"}
-          >
+          <Box className="tr" key={row.id}>
             {row.getVisibleCells().map((cell) => (
               <Box className="td" w={cell.column.getSize()} key={cell.id}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
