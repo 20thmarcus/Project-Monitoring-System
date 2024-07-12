@@ -1,3 +1,4 @@
+// TaskTable.jsx
 import { useState, useEffect } from "react";
 import { Box, Button, Icon } from "@chakra-ui/react";
 import {
@@ -23,7 +24,7 @@ export const ColorIcon = ({ color, ...props }) => (
   <Box w="16px" h="16px" bg={color} borderRadius="3px" {...props} />
 );
 
-const TaskTable = ({ projectID: project }) => {
+const TaskTable = ({ projectID: project, onDataUpdate }) => {
   const [data, setData] = useState(DATA);
   const [columnFilters, setColumnFilters] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -53,6 +54,7 @@ const TaskTable = ({ projectID: project }) => {
   const saveData = (newData) => {
     setTimeout(() => {
       setIsSaved(newData.map(row => validateRow(row)));
+      onDataUpdate(newData);  // Call onDataUpdate with the new data
     }, 1000);
   };
 
@@ -174,7 +176,7 @@ const TaskTable = ({ projectID: project }) => {
       accessorKey: "delete",
       header: "Delete",
       cell: ({ row }) => (
-        <Button colorScheme="red" onClick={() => deleteRow(row.index)}>
+        <Button size="sm" colorScheme="red" onClick={() => deleteRow(row.index)}>
           Delete
         </Button>
       ),
@@ -234,7 +236,7 @@ const TaskTable = ({ projectID: project }) => {
   }, [data]);
 
   return (
-    <Box ml={10} mt="150px">
+    <Box ml={10} mt="100px">
       <Filters columnFilters={columnFilters} setColumnFilters={setColumnFilters} />
       <Button onClick={addRow} colorScheme="blue" mb={4}>
         Add Row
@@ -302,7 +304,7 @@ const TaskTable = ({ projectID: project }) => {
           </Box>
         ))}
       </Box>
-      <br /><br /><br /><br /><br /><br /><br /><br />
+      <br /><br /><br /><br />
     </Box>
   );
 };

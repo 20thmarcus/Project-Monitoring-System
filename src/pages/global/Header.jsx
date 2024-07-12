@@ -1,9 +1,9 @@
+// Header.jsx
 import React from 'react';
 import { Flex, Box, Heading, Button, IconButton } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
-import Dashboard from './dashboard'
 
-const Header = ({ componentName, onOpenSidebar }) => {
+const Header = ({ componentName, onOpenSidebar, onDashboardClick }) => {  // Add onDashboardClick prop
   return (
     <Box
       position="fixed"
@@ -19,19 +19,18 @@ const Header = ({ componentName, onOpenSidebar }) => {
         align="center"
       >
         <Flex align="center">
-          <IconButton
+          {/* <IconButton
             aria-label="Open sidebar"
             icon={<HamburgerIcon />}
             mr={4}
             onClick={onOpenSidebar}
-          />
+          /> */}
           <Heading as="h1" size="lg" variant="logo">Tuesday.com</Heading>
         </Flex>
         <Heading as="h2" size="md">{ componentName }</Heading>
         <Button
           variant="outline"
-          onClick={() => {
-          }}
+          onClick={onDashboardClick}  // Update onClick to call onDashboardClick
         >
           Dashboard
         </Button>

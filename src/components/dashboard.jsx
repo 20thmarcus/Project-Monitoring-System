@@ -1,22 +1,23 @@
-import { useState} from "react";
-import {
-    Box,
-    Button,
-    ButtonGroup,
-    Icon,
-    Text
-} from "@chakra-ui/react"
-import DATA from "../data";
+import React from 'react';
+import { Box, Heading} from '@chakra-ui/react';
+//import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
-
-const dashboard = () => {
-
-    const [data, setData] = useState(DATA);
-
-    
+const Dashboard = ({ data }) => {
   return (
-    <div>dashboard</div>
-  )
-}
+    <Box>
+      <Heading mt="200px">
+        This is the dashboard
+      </Heading>
+      {/* <BarChart width={600} height={300} data={data}>
+        <XAxis dataKey="task" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="project" fill="#8884d8" />
+        <Bar dataKey="status" fill="#82ca9d" />
+      </BarChart> */}
+    </Box>
+  );
+};
 
-export default dashboard
+export default Dashboard;

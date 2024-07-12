@@ -1,27 +1,48 @@
-import React, { useState } from 'react';
+// App.jsx
+import React, { useState, useEffect } from 'react';
 import { Box, useDisclosure } from '@chakra-ui/react';
-import SideBar from './pages/global/SideBar';
+// import SideBar from './pages/global/SideBar';
 import TaskTable from './components/TaskTable';
 import Header from './pages/global/Header';
+import Dashboard from './components/Dashboard';
+import DATA from './data'; // Import the data
 
 const App = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedProjectID, setSelectedProjectID] = useState(null);
   const [selectedComponent, setSelectedComponent] = useState('');
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [taskData, setTaskData] = useState(DATA);
 
   const handleSelectProject = (projectID, componentName) => {
     setSelectedProjectID(projectID);
     setSelectedComponent(componentName);
   };
 
+  const handleDashboardClick = () => {
+    setShowDashboard(!showDashboard);
+  };
+
+  const handleDataUpdate = (newData) => {
+    setTaskData(newData);
+  };
+
   return (
     <>
       <Box>
-        <Header componentName={selectedComponent} onOpenSidebar={onOpen} />
-        <SideBar onSelectProject={handleSelectProject} isOpen={isOpen} onClose={onClose} />
+        <Header 
+          componentName={selectedComponent} 
+          onOpenSidebar={onOpen} 
+          onDashboardClick={handleDashboardClick}
+        />
+        {/* <SideBar onSelectProject={handleSelectProject} isOpen={isOpen} onClose={onClose} /> */}
       </Box>
       <Box>
-        <TaskTable projectID={selectedProjectID} />
+        {showDashboard ? (
+          <Dashboard data={taskData} />  // Pass task data to Dashboard
+        ) : (
+          <TaskTable projectID={selectedProjectID} onDataUpdate={handleDataUpdate} /> // Handle data update
+        )}
       </Box>
     </>
   );
