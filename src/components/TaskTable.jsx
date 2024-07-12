@@ -17,24 +17,25 @@ import HoursCell from "./HoursCell";
 import ModuleCell from "./ModuleCell";
 import InChargeCell from "./InChargeCell";
 import LeadTimeCell from "./LeadTimeCell";
+import ProjectCell from "./ProjectCell";
 
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="16px" h="16px" bg={color} borderRadius="3px" {...props} />
 );
 
-const TaskTable = ({ projectID }) => {
+const TaskTable = ({ projectID: project }) => {
   const [data, setData] = useState(DATA);
   const [columnFilters, setColumnFilters] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isSaved, setIsSaved] = useState(data.map(() => true));
 
   useEffect(() => {
-    if (projectID) {
-      setFilteredData(data.filter((item) => item.projectID === projectID));
+    if (project) {
+      setFilteredData(data.filter((item) => item.projectID === project));
     } else {
       setFilteredData(data);
     }
-  }, [projectID, data]);
+  }, [project, data]);
 
   const validateRow = (row) => {
     if (!row.module || !row.task || !row.budgetHours || !row.targetDate || !row.status) {
@@ -77,16 +78,28 @@ const TaskTable = ({ projectID }) => {
       ),
     },
     {
+      accessorKey: "project",
+      header: "Project",
+      cell: ProjectCell,
+      enableSorting: false,
+      enableColumnFilter: true,
+      filterFn: (row, columnId, filterProject) => {
+        if (filterProject.length === 0) return true;
+        const project = row.getValue(columnId);
+        return filterProject.includes(project?.id);
+      },
+    },
+    {
       accessorKey: "module",
       header: "Module",
-      size: 225,
+      size: 200,
       cell: ModuleCell,
       enableColumnFilter: true,
     },
     {
       accessorKey: "task",
       header: "Task",
-      size: 225,
+      size: 200,
       cell: EditableCell,
       enableColumnFilter: true,
       filterFn: "includesString",
@@ -154,7 +167,7 @@ const TaskTable = ({ projectID }) => {
     {
       accessorKey: "notes",
       header: "Notes",
-      size: 225,
+      size: 200,
       cell: EditableCell,
     },
     {
@@ -196,14 +209,10 @@ const TaskTable = ({ projectID }) => {
   });
 
   const addRow = () => {
-    if (!projectID) {
-      alert("Please select a project before adding a row.");
-      return;
-    }
-
     setData((prev) => [
       ...prev,
       {
+        project: "",
         module: "",
         task: "",
         budgetHours: "",
@@ -214,8 +223,7 @@ const TaskTable = ({ projectID }) => {
         endDate: "",
         actualHours: "",
         leadTime: "",
-        notes: "",
-        projectID: projectID, // Ensure projectID is set for new rows
+        notes: ""
       },
     ]);
     setIsSaved((prev) => [...prev, false]);

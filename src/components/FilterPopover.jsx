@@ -11,9 +11,49 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import FilterIcon from "./icons/FilterIcon";
+import { PROJECTS } from "../data";
 import { STATUSES } from "../data";
 import { PEOPLE } from "../data";
 import { ColorIcon } from "./StatusCell";
+
+const ProjectItem = ({ project, setColumnFilters, isActive }) => (
+  <Flex
+    align="center"
+    cursor="pointer"
+    borderRadius={5}
+    fontWeight="bold"
+    p={1.5}
+    bg={isActive ? "gray.800" : "transparent"}
+    _hover={{
+      bg: "gray.800",
+    }}
+    onClick={() =>
+      setColumnFilters((prev) => {
+        const projects = prev.find((filter) => filter.id === "project")?.value;
+        if (!projects) {
+          return prev.concat({
+            id: "project",
+            value: [project.id],
+          });
+        }
+
+        return prev.map((f) =>
+          f.id === "project"
+            ? {
+                ...f,
+                value: isActive
+                  ? projects.filter((s) => s !== project.id)
+                  : projects.concat(project.id),
+              }
+            : f
+        );
+      })
+    }
+  >
+    <ColorIcon color={project.color} mr={3} />
+    {project.name}
+  </Flex>
+);
 
 const StatusItem = ({ status, setColumnFilters, isActive }) => (
   <Flex
@@ -94,11 +134,41 @@ const InchargeItem = ({ incharge, setColumnFilters, isActive }) => (
 );
 
 const FilterPopover = ({ columnFilters, setColumnFilters }) => {
+  const filterProjects = columnFilters.find((f) => f.id === "project")?.value || [];
   const filterStatuses = columnFilters.find((f) => f.id === "status")?.value || [];
   const filterIncharges = columnFilters.find((f) => f.id === "incharge")?.value || [];
 
   return (
     <>
+
+      <Popover isLazy>
+        <PopoverTrigger>
+          <Button
+            size="sm"
+            color={filterProjects.length > 0 ? "blue.300" : ""}
+            leftIcon={<Icon as={FilterIcon} fontSize={18} />}
+          >
+            Filter by Project
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <PopoverArrow />
+          <PopoverCloseButton />
+          <PopoverBody>
+            <VStack align="flex-start" spacing={1}>
+              {PROJECTS.map((project) => (
+                <ProjectItem
+                  project={project}
+                  isActive={filterProjects.includes(project.id)}
+                  setColumnFilters={setColumnFilters}
+                  key={project.id}
+                />
+              ))}
+            </VStack>
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
+
       <Popover isLazy>
         <PopoverTrigger>
           <Button
@@ -154,6 +224,7 @@ const FilterPopover = ({ columnFilters, setColumnFilters }) => {
           </PopoverBody>
         </PopoverContent>
       </Popover>
+
     </>
   );
 };
