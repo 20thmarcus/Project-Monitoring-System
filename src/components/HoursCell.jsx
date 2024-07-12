@@ -31,10 +31,12 @@ const HoursCell = ({ getValue, row, column, table }) => {
       step={0.5}
       precision={1}
       min={0.5}
+      display="flex"
+      alignItems="center"
     >
       <NumberInputField />
-      <NumberInputStepper sx={{ h: "1rem", w: "1rem" }}>
-        <NumberIncrementStepper sx={{ fontSize: "0.75rem" }} />
+      <NumberInputStepper mt={1} sx={{ h: "1rem", w: "1rem"}}>
+        <NumberIncrementStepper sx={{ fontSize: "0.75rem" }}/>
         <NumberDecrementStepper sx={{ fontSize: "0.75rem" }} />
       </NumberInputStepper>
     </NumberInput>

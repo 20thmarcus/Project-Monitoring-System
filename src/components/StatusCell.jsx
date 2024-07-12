@@ -11,8 +11,8 @@ const Pill = ({ color, children }) => (
     py={0.5}
     bg={color || "transparent"}
     borderRadius="15px"
-    display="inline-flex"
-    alignItems="center"
+    //display="inline-flex"
+    align="center"
   >
     <Text color="gray.900" fontWeight="bold">
       {children}
@@ -50,7 +50,7 @@ const StatusCell = ({ getValue, row, column, table }) => {
         h="100%"
         w="100%"
         textAlign="left"
-        p={1.5}
+        p={2}
         bg="transparent"
         color="gray.900"
       >

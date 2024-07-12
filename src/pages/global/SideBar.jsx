@@ -12,13 +12,17 @@ const SideBar = ({ onSelectProject, isOpen, onClose }) => {
   }, []);
 
   const addComponent = () => {
-    const newComponent = `Project ${components.length + 1}`;
-    setComponents([...components, newComponent]);
-    updateLocalStorage([...components, newComponent]);
+    const newComponent = {
+      id: components.length ? Math.max(...components.map(c => c.id)) + 1 : 1,
+      name: `Project ${components.length + 1}`
+    };
+    const updatedComponents = [...components, newComponent];
+    setComponents(updatedComponents);
+    updateLocalStorage(updatedComponents);
   };
 
-  const deleteComponent = (index) => {
-    const updatedComponents = components.filter((_, i) => i !== index);
+  const deleteComponent = (id) => {
+    const updatedComponents = components.filter(component => component.id !== id);
     setComponents(updatedComponents);
     updateLocalStorage(updatedComponents);
   };
@@ -27,21 +31,22 @@ const SideBar = ({ onSelectProject, isOpen, onClose }) => {
     localStorage.setItem('components', JSON.stringify(updatedComponents));
   };
 
-  const handleComponentClick = (index) => {
-    const projectID = index + 1;
-    const componentName = components[index];
-    onSelectProject(projectID, componentName);
+  const handleComponentClick = (id) => {
+    const component = components.find(component => component.id === id);
+    onSelectProject(id, component.name);
+    console.log(`Selecting ${id}`);
   };
 
-  const handleRename = (index, newName) => {
-    const updatedComponents = [...components];
-    updatedComponents[index] = newName;
+  const handleRename = (id, newName) => {
+    const updatedComponents = components.map(component =>
+      component.id === id ? { ...component, name: newName } : component
+    );
     setComponents(updatedComponents);
     updateLocalStorage(updatedComponents);
   };
 
   const filteredComponents = components.filter(component =>
-    component.toLowerCase().includes(searchTerm.toLowerCase())
+    component.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -58,14 +63,13 @@ const SideBar = ({ onSelectProject, isOpen, onClose }) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <AddIcon onClick={addComponent} ml={4} mt={3} aria-label="Add Project"/>
+            <AddIcon onClick={addComponent} ml={4} mt={3} aria-label="Add Project" />
           </Flex>
           <Box
             p={4}
             borderWidth={1}
             borderRadius="lg"
             w="100%"
-            onClick={() => handleComponentClick()}
             cursor="pointer"
             position="relative"
             mb={4}
@@ -74,19 +78,19 @@ const SideBar = ({ onSelectProject, isOpen, onClose }) => {
             Summary
           </Box>
           <VStack spacing={4}>
-            {filteredComponents.map((component, index) => (
+            {filteredComponents.map((component) => (
               <Box
-                key={index}
+                key={component.id}
                 p={4}
                 borderWidth={1}
                 borderRadius="lg"
                 w="100%"
-                onClick={() => handleComponentClick(index)}
+                onClick={() => handleComponentClick(component.id)}
                 cursor="pointer"
                 position="relative"
                 _hover={{ backgroundColor: 'gray.900' }}
               >
-                <Editable defaultValue={component} onSubmit={(newName) => handleRename(index, newName)}>
+                <Editable defaultValue={component.name} onSubmit={(newName) => handleRename(component.id, newName)}>
                   <EditablePreview />
                   <EditableInput />
                 </Editable>
@@ -99,7 +103,7 @@ const SideBar = ({ onSelectProject, isOpen, onClose }) => {
                   right={2}
                   onClick={(e) => {
                     e.stopPropagation();
-                    deleteComponent(index);
+                    deleteComponent(component.id);
                   }}
                 />
               </Box>

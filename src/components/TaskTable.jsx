@@ -215,7 +215,7 @@ const TaskTable = ({ projectID }) => {
         actualHours: "",
         leadTime: "",
         notes: "",
-        projectID: projectID, // Ensure projectID is set for new rows
+        projectID: projectID
       },
     ]);
     setIsSaved((prev) => [...prev, false]);
@@ -265,7 +265,15 @@ const TaskTable = ({ projectID }) => {
         {table.getRowModel().rows.map((row, rowIndex) => (
           <Box className="tr" key={row.id}>
             {row.getVisibleCells().map((cell) => (
-              <Box className="td" w={cell.column.getSize()} key={cell.id}>
+              <Box 
+                className="td" 
+                w={cell.column.getSize()} 
+                key={cell.id}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontSize="sm"
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </Box>
             ))}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Flex, Box, Heading, Button, IconButton } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import Dashboard from './dashboard'
+import { Route, Router } from 'react-router-dom';
 
 const Header = ({ componentName, onOpenSidebar }) => {
   return (
@@ -31,6 +32,7 @@ const Header = ({ componentName, onOpenSidebar }) => {
         <Button
           variant="outline"
           onClick={() => {
+            
           }}
         >
           Dashboard

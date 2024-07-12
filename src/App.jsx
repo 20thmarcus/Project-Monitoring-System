@@ -7,7 +7,7 @@ import Header from './pages/global/Header';
 const App = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedProjectID, setSelectedProjectID] = useState(null);
-  const [selectedComponent, setSelectedComponent] = useState('');
+  const [selectedComponent, setSelectedComponent] = useState();
 
   const handleSelectProject = (projectID, componentName) => {
     setSelectedProjectID(projectID);

@@ -9,14 +9,10 @@ import {
 import DATA from "../data";
 
 
-const dashboard = () => {
+import React from 'react'
 
-    const [data, setData] = useState(DATA);
-
-    
+export const dashboard = () => {
   return (
     <div>dashboard</div>
   )
 }
-
-export default dashboard

@@ -89,7 +89,7 @@ const DATA = [
   {
     projectID: 2,
     module: MODULE_1,
-    task: "Sample id 1 (2)",
+    task: "Sample id 2",
     status: STATUS_PENDING,
     due: new Date("2023/11/08"),
     notes: "OAuth2 and JWT auth.",
@@ -98,7 +98,7 @@ const DATA = [
   {
     projectID: 2,
     module: MODULE_1,
-    task: "Sample id 2",
+    task: "Sample id 2 (0)",
     status: null,
     due: new Date("2023/09/30"),
     notes: "Create UI mockups.",

@@ -13,6 +13,7 @@ const styles = {
       ".tr": {
         display: "flex",
         width: "fit-content",
+        justifyContent: "center",
       },
       ".th, .td": { boxShadow: "inset 0 0 0 1px #424242" },
       ".th": {

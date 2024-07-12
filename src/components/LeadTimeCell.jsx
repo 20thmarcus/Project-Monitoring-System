@@ -31,6 +31,8 @@ const LeadTimeCell = ({ getValue, row, column, table }) => {
       step={1}
       precision={1}
       min={0}
+      ml={2}
+      mt={2}
     >
       <NumberInputField />
       <NumberInputStepper sx={{ h: "1rem", w: "1rem" }}>
