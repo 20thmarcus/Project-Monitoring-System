@@ -14,11 +14,15 @@ const App = () => {
     setSelectedComponent(componentName);
   };
 
+  const handleClearFilter = () => {
+    setSelectedProjectID(null); 
+  };
+
   return (
     <>
       <Box>
         <Header componentName={selectedComponent} onOpenSidebar={onOpen} />
-        <SideBar onSelectProject={handleSelectProject} isOpen={isOpen} onClose={onClose} />
+        <SideBar onSelectProject={handleSelectProject} onClearFilter={handleClearFilter} isOpen={isOpen} onClose={onClose} />
       </Box>
       <Box>
         <TaskTable projectID={selectedProjectID} />

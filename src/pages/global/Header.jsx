@@ -1,10 +1,8 @@
 import React from 'react';
 import { Flex, Box, Heading, Button, IconButton } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
-import Dashboard from './dashboard'
-import { Route, Router } from 'react-router-dom';
 
-const Header = ({ componentName, onOpenSidebar }) => {
+const Header = ({ componentName, onOpenSidebar, onDashboardClick }) => {
   return (
     <Box
       position="fixed"
@@ -28,12 +26,10 @@ const Header = ({ componentName, onOpenSidebar }) => {
           />
           <Heading as="h1" size="lg" variant="logo">Tuesday.com</Heading>
         </Flex>
-        <Heading as="h2" size="md">{ componentName }</Heading>
+        <Heading as="h2" size="md">{componentName}</Heading>
         <Button
           variant="outline"
-          onClick={() => {
-            
-          }}
+          onClick={onDashboardClick} // Call onDashboardClick when the button is clicked
         >
           Dashboard
         </Button>

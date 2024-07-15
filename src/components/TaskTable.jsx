@@ -161,7 +161,7 @@ const TaskTable = ({ projectID }) => {
       accessorKey: "delete",
       header: "Delete",
       cell: ({ row }) => (
-        <Button colorScheme="red" onClick={() => deleteRow(row.index)}>
+        <Button colorScheme="red" size="sm" onClick={() => deleteRow(row.index)}>
           Delete
         </Button>
       ),
