@@ -56,7 +56,7 @@ const TaskTable = ({ projectID }) => {
   };
 
   const deleteRow = (rowIndex) => {
-    console.log("Deleting row:", rowIndex); // Debug log
+    console.log("Deleting row:", rowIndex); // testing
     setData((prev) => {
       const newData = prev.filter((_, index) => index !== rowIndex);
       saveData(newData);
