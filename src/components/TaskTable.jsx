@@ -1,6 +1,6 @@
-// TaskTable.jsx
 import { useState, useEffect } from "react";
-import { Box, Button, Icon } from "@chakra-ui/react";
+import { Box, Button, Icon, Heading } from "@chakra-ui/react";
+
 import {
   flexRender,
   getCoreRowModel,
@@ -24,19 +24,16 @@ export const ColorIcon = ({ color, ...props }) => (
   <Box w="16px" h="16px" bg={color} borderRadius="3px" {...props} />
 );
 
-const TaskTable = ({ projectID: project, onDataUpdate }) => {
+const TaskTable = ({ onDataUpdate }) => {
   const [data, setData] = useState(DATA);
   const [columnFilters, setColumnFilters] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isSaved, setIsSaved] = useState(data.map(() => true));
+  const [testingg, settesttingg] = useState([]);
 
   useEffect(() => {
-    if (project) {
-      setFilteredData(data.filter((item) => item.projectID === project));
-    } else {
-      setFilteredData(data);
-    }
-  }, [project, data]);
+    setFilteredData(data);
+  });
 
   const validateRow = (row) => {
     if (!row.module || !row.task || !row.budgetHours || !row.targetDate || !row.status) {
@@ -50,16 +47,14 @@ const TaskTable = ({ projectID: project, onDataUpdate }) => {
     }
     return true;
   };
-
   const saveData = (newData) => {
     setTimeout(() => {
       setIsSaved(newData.map(row => validateRow(row)));
-      onDataUpdate(newData);  // Call onDataUpdate with the new data
+      onDataUpdate(newData); 
     }, 1000);
   };
-
-  const deleteRow = (rowIndex) => {
-    console.log("Deleting row:", rowIndex); // Debug log
+  const deleteRow = async (rowIndex) => {
+    console.log("Deleting row:", rowIndex);
     setData((prev) => {
       const newData = prev.filter((_, index) => index !== rowIndex);
       saveData(newData);
@@ -67,6 +62,13 @@ const TaskTable = ({ projectID: project, onDataUpdate }) => {
     });
   };
 
+  // ginawa ko sa harap ni sir jay - marcus
+  async function functiontesting () {
+    await fetch('http://localhost:5000/tasks/getallproject', {method: "GET"})
+    .then(response => response.json())
+    .then(data => { setData(data)})
+    .catch(error => console.error('Error:', error));
+  }
   const columns = [
     {
       accessorKey: "validationStatus",
@@ -182,7 +184,6 @@ const TaskTable = ({ projectID: project, onDataUpdate }) => {
       ),
     },
   ];
-
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -237,9 +238,15 @@ const TaskTable = ({ projectID: project, onDataUpdate }) => {
 
   return (
     <Box ml={10} mt="100px">
+
+ 
       <Filters columnFilters={columnFilters} setColumnFilters={setColumnFilters} />
       <Button onClick={addRow} colorScheme="blue" mb={4}>
         Add Row
+      </Button>
+       <p>{JSON.stringify(testingg,null,2)}</p>
+      <Button onClick={functiontesting}>
+        Testing sample sample 
       </Button>
       <Box className="table" w={table.getTotalSize()}>
         {table.getHeaderGroups().map((headerGroup) => (

@@ -22,10 +22,15 @@ const DATA = [
         project: PROJECT_1,
         module: MODULE_2,
         task: "Create sidebar",
-        status: STATUS_PENDING,
-        due: new Date("2024/7/4"),
-        notes: "In progress",
+        budgetHours: 1.00,
+        targetDate: new Date("2023/12/14"),
+        status: STATUS_DONE,
         incharge: PERSON_1,
+        startDate: new Date("2023/12/11"),
+        endDate: new Date("2023/12/14"),
+        actualHours: 5.00,
+        leadTime: 0,
+        notes: "Creating the sidebar is so hard"
       },
       {
         project: PROJECT_1,
