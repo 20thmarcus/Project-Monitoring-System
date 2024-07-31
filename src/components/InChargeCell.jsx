@@ -99,10 +99,10 @@ const InChargeCell = ({ getValue, row, column, table, username }) => {
           <ColorIcon color="red.400" mr={3} />
           None
         </MenuItem>
-        {people.map((person) => (
+        {people.map((person, index) => (
           <MenuItem
             onClick={() => updateData(row.index, column.id, person)}
-            key={person.id}
+            key={person.id || index}
           >
             <ColorIcon color={person.color} mr={3} />
             {person.firstName}

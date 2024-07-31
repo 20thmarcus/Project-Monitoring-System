@@ -98,10 +98,10 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
         <MenuItem onClick={() => updateData(row.index, column.id, null)}>
           None
         </MenuItem>
-        {projects.map((project) => (
+        {projects.map((project, index) => (
           <MenuItem
             onClick={() => updateData(row.index, column.id, project)}
-            key={project.id}
+            key={project.id || index}
           >
             {project.project}
             <Text ml={3}>{project.projectDescription}</Text>

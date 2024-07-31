@@ -2,7 +2,8 @@ import { Input } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 const EditableCell = ({ getValue, row, column, table }) => {
-  const initialValue = getValue();
+  // Ensure initial value is a string
+  const initialValue = getValue() ?? '';
   const [value, setValue] = useState(initialValue);
 
   const onBlur = () => {
@@ -20,7 +21,7 @@ const EditableCell = ({ getValue, row, column, table }) => {
   return (
     <Input
       value={value}
-      onChange={(e) => setValue(e.target.value)}
+      onChange={(e) => setValue(e.target.value ?? '')} // Default to empty string if null
       onBlur={onBlur}
       variant="filled"
       size="sm"
@@ -31,4 +32,5 @@ const EditableCell = ({ getValue, row, column, table }) => {
     />
   );
 };
+
 export default EditableCell;

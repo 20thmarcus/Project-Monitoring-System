@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Button, Icon, Heading } from "@chakra-ui/react";
+import { Box, Button, Icon } from "@chakra-ui/react";
 import {
   flexRender,
   getCoreRowModel,
@@ -19,6 +19,7 @@ import InChargeCell from "./InChargeCell";
 import LeadTimeCell from "./LeadTimeCell";
 import ProjectCell from "./ProjectCell";
 import axios from "axios";
+
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="16px" h="16px" bg={color} borderRadius="3px" {...props} />
 );
@@ -28,11 +29,14 @@ const TaskTable = ({ onDataUpdate }) => {
   const [columnFilters, setColumnFilters] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isSaved, setIsSaved] = useState(data.map(() => true));
-  const [testingg, settesttingg] = useState([]);
 
   useEffect(() => {
     setFilteredData(data);
-  });
+  }, [data]);
+
+  useEffect(() => {
+    readTable();
+  }, []);
 
   const validateRow = (row) => {
     if (!row.module || !row.task || !row.budgetHours || !row.targetDate || !row.status) {
@@ -46,38 +50,43 @@ const TaskTable = ({ onDataUpdate }) => {
     }
     return true;
   };
+
   const saveData = (newData) => {
     setTimeout(() => {
       setIsSaved(newData.map(row => validateRow(row)));
-      onDataUpdate(newData); 
+      onDataUpdate(newData);
     }, 1000);
   };
-  const deleteRow = async (rowIndex) => {
 
-    delResponse = axios.delete(`http://localhost:5000/tasks/${rowIndex}`)
-    .then(response =>{
-      console.log()
-    })
+  const deleteRow = async (taskId) => {
+    try {
+      await axios.delete(`http://localhost:5000/tasks/${taskId}`);
+      console.log("Deleting task:", taskId);
 
-     fetch('http://localhost:5000/tasks/:id', {method:"DELETE"})
-    .then(response => response.json())
-    .then(data => {setData(data)})
-    .catch(error => console.error('Error', error))
+      // Update state to remove the deleted task
+      setData((prev) => {
+        const newData = prev.filter((task) => task.taskID !== taskId);
+        saveData(newData);
+        return newData;
+      });
 
-    console.log("Deleting row:", rowIndex);
-    setData((prev) => {
-      const newData = prev.filter((_, index) => index !== rowIndex);
-      saveData(newData);
-      return newData;
-    });
+      // Optionally, reset column filters if needed
+      setColumnFilters([]);
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  async function functiontesting () {
-    await fetch('http://localhost:5000/tasks/getallproject', {method: "GET"})
-    .then(response => response.json())
-    .then(data => {setData(data)})
-    .catch(error => console.error('Error:', error));
-  }
+  const readTable = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/tasks/getallproject', { method: "GET" });
+      const data = await response.json();
+      setData(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const columns = [
     {
       accessorKey: "validationStatus",
@@ -93,14 +102,15 @@ const TaskTable = ({ onDataUpdate }) => {
     {
       accessorKey: "project",
       header: "Project",
-      cell: ({row, column, table}) => (
-        <ProjectCell 
+      cell: ({ row, column, table }) => (
+        <ProjectCell
           getValue={() => row.original[column.id]}
           row={row}
           column={column}
           table={table}
           projectDesc={row.original.project}
-        />),
+        />
+      ),
       enableSorting: false,
       enableColumnFilter: true,
       filterFn: (row, columnId, filterProject) => {
@@ -113,14 +123,15 @@ const TaskTable = ({ onDataUpdate }) => {
       accessorKey: "module",
       header: "Module",
       size: 200,
-      cell: ({row, column, table}) =>(
+      cell: ({ row, column, table }) => (
         <ModuleCell
-          getValue={()=> row.original[column.id]}
+          getValue={() => row.original[column.id]}
           row={row}
           column={column}
           table={table}
-          moduleN = {row.original.moduleName}/>
-      ) ,
+          moduleN={row.original.moduleName}
+        />
+      ),
       enableColumnFilter: true,
     },
     {
@@ -158,14 +169,15 @@ const TaskTable = ({ onDataUpdate }) => {
     {
       accessorKey: "incharge",
       header: "In-Charge",
-      cell: ({row, column, table}) => (
-        <InChargeCell 
+      cell: ({ row, column, table }) => (
+        <InChargeCell
           getValue={() => row.original[column.id]}
           row={row}
           column={column}
           table={table}
           username={row.original.firstName}
-        />),
+        />
+      ),
       enableSorting: false,
       enableColumnFilter: true,
       filterFn: (row, columnId, filterIncharge) => {
@@ -208,12 +220,13 @@ const TaskTable = ({ onDataUpdate }) => {
       accessorKey: "delete",
       header: "Delete",
       cell: ({ row }) => (
-        <Button size="sm" colorScheme="red" onClick={() => deleteRow(row.index)}>
+        <Button size="sm" colorScheme="red" onClick={() => deleteRow(row.original.taskID)}>
           Delete
         </Button>
       ),
     },
   ];
+
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -241,7 +254,13 @@ const TaskTable = ({ onDataUpdate }) => {
     },
   });
 
-  const addRow = () => {
+  const addRow = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/tasks");
+      setProjects(response.data);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
     setData((prev) => [
       ...prev,
       {
@@ -250,7 +269,7 @@ const TaskTable = ({ onDataUpdate }) => {
         task: "",
         budgetHours: "",
         targetDate: "",
-        status: STATUSES[0],
+        status: "",
         incharge: "",
         startDate: "",
         endDate: "",
@@ -268,31 +287,18 @@ const TaskTable = ({ onDataUpdate }) => {
 
   return (
     <Box ml={10} mt="100px">
-
- 
       <Filters columnFilters={columnFilters} setColumnFilters={setColumnFilters} />
       <Button onClick={addRow} colorScheme="blue" mb={4}>
         Add Row
-      </Button>
-       <p>{JSON.stringify(testingg,null,2)}</p>
-    <Button onClick={functiontesting}>
-        Testing sample sample 
       </Button>
       <Box className="table" w={table.getTotalSize()}>
         {table.getHeaderGroups().map((headerGroup) => (
           <Box className="tr" key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <Box 
-                className="th" 
-                w={header.getSize()} 
+              <Box
+                className="th"
+                w={header.getSize()}
                 key={header.id}
-                // display="flex"
-                // alignItems="center"
-                // justifyContent="center"
-                // padding="8px"
-                // borderBottom="1px solid #ccc"
-                // backgroundColor="#f9f9f9"
-                // fontWeight="bold"
               >
                 {header.column.columnDef.header}
                 {header.column.getCanSort() && (
@@ -320,7 +326,7 @@ const TaskTable = ({ onDataUpdate }) => {
             ))}
           </Box>
         ))}
-        {table.getRowModel().rows.map((row, rowIndex) => (
+        {table.getRowModel().rows.map((row) => (
           <Box className="tr" key={row.id}>
             {row.getVisibleCells().map((cell) => (
               <Box
@@ -330,9 +336,6 @@ const TaskTable = ({ onDataUpdate }) => {
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-                // padding="8px"
-                // borderBottom="1px solid #ccc"
-                // backgroundColor="#fff"
                 fontSize="sm"
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -341,7 +344,6 @@ const TaskTable = ({ onDataUpdate }) => {
           </Box>
         ))}
       </Box>
-      <br /><br /><br /><br />
     </Box>
   );
 };

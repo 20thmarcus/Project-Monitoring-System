@@ -97,10 +97,10 @@ const ModuleCell = ({ getValue, row, column, table, moduleN}) => {
           <ColorIcon color="red.400" mr={3} />
 
         </MenuItem>
-        {modules.map((module) => (
+        {modules.map((module, index) => (
           <MenuItem
             onClick={() => updateData(row.index, column.id, module)}
-            key={module.id}
+            key={module.id || index}
           >
             <ColorIcon color={module.color} mr={3} />
             {module.moduleName}

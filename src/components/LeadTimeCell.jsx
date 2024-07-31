@@ -1,8 +1,15 @@
-import { NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
+import {
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 const LeadTimeCell = ({ getValue, row, column, table }) => {
-  const initialValue = getValue();
+  // Ensure initial value is a number
+  const initialValue = getValue() ?? 0;
   const [value, setValue] = useState(initialValue);
 
   const onBlur = () => {
@@ -20,7 +27,10 @@ const LeadTimeCell = ({ getValue, row, column, table }) => {
   return (
     <NumberInput
       value={value}
-      onChange={(valueString) => setValue(parseFloat(valueString))}
+      onChange={(valueString) => {
+        const newValue = parseFloat(valueString);
+        setValue(isNaN(newValue) ? 0 : newValue); // Default to 0 if NaN
+      }}
       onBlur={onBlur}
       variant="filled"
       size="sm"
@@ -40,4 +50,5 @@ const LeadTimeCell = ({ getValue, row, column, table }) => {
     </NumberInput>
   );
 };
+
 export default LeadTimeCell;

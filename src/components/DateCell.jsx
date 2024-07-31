@@ -9,7 +9,7 @@ const DateCustomInput = forwardRef(({ value, onClick, clearDate }, ref) => (
     {value ? (
       <>
         {value}
-        <Box
+        {/* <Box
           pos="absolute"
           right={3}
           fontSize="md"
@@ -20,7 +20,7 @@ const DateCustomInput = forwardRef(({ value, onClick, clearDate }, ref) => (
           }}
         >
           &times;
-        </Box>
+        </Box> */}
       </>
     ) : (
       <Icon as={CalendarIcon} fontSize="xl" />
