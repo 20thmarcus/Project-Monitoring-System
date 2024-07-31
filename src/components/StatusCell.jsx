@@ -5,6 +5,8 @@ export const ColorIcon = ({ color, ...props }) => (
   <Box w="12px" h="12px" bg={color} borderRadius="3px" {...props} />
 );
 
+//I want the 
+
 const Pill = ({ color, children }) => (
   <Box
     px={3}

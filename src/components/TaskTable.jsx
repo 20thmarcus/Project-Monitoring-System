@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Box, Button, Icon, Heading } from "@chakra-ui/react";
-
 import {
   flexRender,
   getCoreRowModel,
@@ -19,7 +18,7 @@ import ModuleCell from "./ModuleCell";
 import InChargeCell from "./InChargeCell";
 import LeadTimeCell from "./LeadTimeCell";
 import ProjectCell from "./ProjectCell";
-
+import axios from "axios";
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="16px" h="16px" bg={color} borderRadius="3px" {...props} />
 );
@@ -54,6 +53,17 @@ const TaskTable = ({ onDataUpdate }) => {
     }, 1000);
   };
   const deleteRow = async (rowIndex) => {
+
+    delResponse = axios.delete(`http://localhost:5000/tasks/${rowIndex}`)
+    .then(response =>{
+      console.log()
+    })
+
+     fetch('http://localhost:5000/tasks/:id', {method:"DELETE"})
+    .then(response => response.json())
+    .then(data => {setData(data)})
+    .catch(error => console.error('Error', error))
+
     console.log("Deleting row:", rowIndex);
     setData((prev) => {
       const newData = prev.filter((_, index) => index !== rowIndex);
@@ -62,11 +72,10 @@ const TaskTable = ({ onDataUpdate }) => {
     });
   };
 
-  // ginawa ko sa harap ni sir jay - marcus
   async function functiontesting () {
     await fetch('http://localhost:5000/tasks/getallproject', {method: "GET"})
     .then(response => response.json())
-    .then(data => { setData(data)})
+    .then(data => {setData(data)})
     .catch(error => console.error('Error:', error));
   }
   const columns = [
@@ -84,7 +93,14 @@ const TaskTable = ({ onDataUpdate }) => {
     {
       accessorKey: "project",
       header: "Project",
-      cell: ProjectCell,
+      cell: ({row, column, table}) => (
+        <ProjectCell 
+          getValue={() => row.original[column.id]}
+          row={row}
+          column={column}
+          table={table}
+          projectDesc={row.original.project}
+        />),
       enableSorting: false,
       enableColumnFilter: true,
       filterFn: (row, columnId, filterProject) => {
@@ -97,7 +113,14 @@ const TaskTable = ({ onDataUpdate }) => {
       accessorKey: "module",
       header: "Module",
       size: 200,
-      cell: ModuleCell,
+      cell: ({row, column, table}) =>(
+        <ModuleCell
+          getValue={()=> row.original[column.id]}
+          row={row}
+          column={column}
+          table={table}
+          moduleN = {row.original.moduleName}/>
+      ) ,
       enableColumnFilter: true,
     },
     {
@@ -135,7 +158,14 @@ const TaskTable = ({ onDataUpdate }) => {
     {
       accessorKey: "incharge",
       header: "In-Charge",
-      cell: InChargeCell,
+      cell: ({row, column, table}) => (
+        <InChargeCell 
+          getValue={() => row.original[column.id]}
+          row={row}
+          column={column}
+          table={table}
+          username={row.original.firstName}
+        />),
       enableSorting: false,
       enableColumnFilter: true,
       filterFn: (row, columnId, filterIncharge) => {
@@ -245,7 +275,7 @@ const TaskTable = ({ onDataUpdate }) => {
         Add Row
       </Button>
        <p>{JSON.stringify(testingg,null,2)}</p>
-      <Button onClick={functiontesting}>
+    <Button onClick={functiontesting}>
         Testing sample sample 
       </Button>
       <Box className="table" w={table.getTotalSize()}>

@@ -1,65 +1,87 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text } from "@chakra-ui/react";
-import { PEOPLE } from "../data";
+import axios from "axios";
 
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="12px" h="12px" bg={color} borderRadius="3px" {...props} />
 );
 
-const InChargeCell = ({ getValue, row, column, table }) => {
-  const { name, color } = getValue() || {};
+const InChargeCell = ({ getValue, row, column, table, username }) => {
+  const { firstName, color } = getValue() || {};
   const { updateData } = table.options.meta;
-  const [people, setPeople] = useState(PEOPLE);
+  const [people, setPeople] = useState([]);
   const [newPerson, setNewPerson] = useState("");
   const [newPersonColor, setNewPersonColor] = useState("");
   const [editPersonId, setEditPersonId] = useState(null);
   const [editPersonName, setEditPersonName] = useState("");
-  const [editPersonColor, setEditPersonColor] = useState("");
+  const [incharge, setIncharge] = useState("");
 
-  const handleAddPerson = () => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/users");
+        setPeople(response.data); // Fix: Use setPeople instead of setUsers
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    const fetchUserName = async () => {
+      try {
+        setIncharge(username);
+      } catch (error) {
+        console.error("Error fetching username:", error);
+      }
+    };
+
+    fetchUsers();
+
+    if (username) {
+      fetchUserName();
+    }
+  }, [username]);
+
+  const handleAddPerson = async () => {
     if (newPerson.trim() === "") return;
 
-    const newId = people.length + 1;
-    const person = { id: newId, name: newPerson, color: newPersonColor || "gray.300" };
-    setPeople([...people, person]);
-    PEOPLE.push(person); // Update the PEOPLE array directly
-    setNewPerson("");
-    setNewPersonColor("");
+    try {
+      const response = await axios.post("http://localhost:5000/users", {
+        firstName: newPerson
+      });
+
+      const person = { firstName: newPerson };
+      setPeople([...people, person]);
+      setNewPerson("");
+    } catch (error) {
+      console.error("Error adding person:", error);
+    }
   };
 
-  const handleEditPerson = () => {
+  const handleEditPerson = async () => {
     if (editPersonName.trim() === "") return;
 
-    const updatedPeople = people.map((person) =>
-      person.id === editPersonId
-        ? { ...person, name: editPersonName, color: editPersonColor || person.color }
-        : person
-    );
-    setPeople(updatedPeople);
+    try {
+      await axios.put(`http://localhost:5000/users/${editPersonId}`, {
+        firstName: editPersonName,
+      });
 
-    // Update the PEOPLE array directly
-    const personIndex = PEOPLE.findIndex((person) => person.id === editPersonId);
-    if (personIndex > -1) {
-      PEOPLE[personIndex] = { id: editPersonId, name: editPersonName, color: editPersonColor || PEOPLE[personIndex].color };
+      const updatedPeople = people.map((person) =>
+        person.id === editPersonId
+          ? { ...person, firstName: editPersonName }
+          : person
+      );
+      setPeople(updatedPeople);
+      setEditPersonId(null);
+      setEditPersonName("");
+    } catch (error) {
+      console.error("Error updating person:", error);
     }
-
-    // Update all rows in the table with the renamed person
-    table.options.data.forEach((rowData, index) => {
-      if (rowData[column.id]?.id === editPersonId) {
-        updateData(index, column.id, PEOPLE[personIndex]);
-      }
-    });
-
-    setEditPersonId(null);
-    setEditPersonName("");
-    setEditPersonColor("");
   };
 
   const startEditing = (person, event) => {
     event.stopPropagation(); // Prevent the menu from closing
     setEditPersonId(person.id);
-    setEditPersonName(person.name);
-    setEditPersonColor(person.color);
+    setEditPersonName(person.firstName);
   };
 
   return (
@@ -70,7 +92,7 @@ const InChargeCell = ({ getValue, row, column, table }) => {
         textAlign="left"
         p={1.5}
       >
-        {name || "Select In-Charge"}
+        {incharge || "Select In-Charge"}
       </MenuButton>
       <MenuList>
         <MenuItem onClick={() => updateData(row.index, column.id, null)}>
@@ -79,11 +101,11 @@ const InChargeCell = ({ getValue, row, column, table }) => {
         </MenuItem>
         {people.map((person) => (
           <MenuItem
-            onClick={(e) => updateData(row.index, column.id, person)}
+            onClick={() => updateData(row.index, column.id, person)}
             key={person.id}
           >
             <ColorIcon color={person.color} mr={3} />
-            {person.name}
+            {person.firstName}
             <Button ml={3} size="xs" onClick={(e) => startEditing(person, e)}>Edit</Button>
           </MenuItem>
         ))}
@@ -96,12 +118,6 @@ const InChargeCell = ({ getValue, row, column, table }) => {
                 onChange={(e) => setEditPersonName(e.target.value)}
                 mb={2}
               />
-              <Input
-                placeholder="Edit person color"
-                value={editPersonColor}
-                onChange={(e) => setEditPersonColor(e.target.value)}
-                mb={2}
-              />
               <Button onClick={handleEditPerson} colorScheme="blue">Save Changes</Button>
             </>
           ) : (
@@ -110,12 +126,6 @@ const InChargeCell = ({ getValue, row, column, table }) => {
                 placeholder="New person name"
                 value={newPerson}
                 onChange={(e) => setNewPerson(e.target.value)}
-                mb={2}
-              />
-              <Input
-                placeholder="New person color"
-                value={newPersonColor}
-                onChange={(e) => setNewPersonColor(e.target.value)}
                 mb={2}
               />
               <Button onClick={handleAddPerson} colorScheme="blue" isDisabled={!newPerson.trim()}>Add Person</Button>

@@ -1,65 +1,85 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text } from "@chakra-ui/react";
-import { MODULES } from "../data";
+import axios from "axios";
 
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="12px" h="12px" bg={color} borderRadius="3px" {...props} />
 );
 
-const ModuleCell = ({ getValue, row, column, table }) => {
-  const { name, color } = getValue() || {};
+const ModuleCell = ({ getValue, row, column, table, moduleN}) => {
+  const { moduleName, color } = getValue() || {};
   const { updateData } = table.options.meta;
-  const [modules, setModules] = useState(MODULES);
+  const [modules, setModules] = useState([]);
   const [newModule, setNewModule] = useState("");
-  const [newModuleColor, setNewModuleColor] = useState("");
   const [editModuleId, setEditModuleId] = useState(null);
   const [editModuleName, setEditModuleName] = useState("");
-  const [editModuleColor, setEditModuleColor] = useState("");
+  const [modulename, setmodulename] = useState("");
 
-  const handleAddModule = () => {
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/modules");
+        setModules(response.data);
+      } catch (error) {
+        console.error("Error fetching modules:", error);
+      }
+    };
+    const fetchModuleName = async () => { 
+      try { 
+        setmodulename(moduleN); 
+      } 
+      catch (error) { 
+        console.error("Error fetching project description:", error); 
+      } };
+
+    fetchModules();
+
+    if(moduleN){
+      fetchModuleName()
+    }
+  }, [moduleN]);
+
+  const handleAddModule = async () => {
     if (newModule.trim() === "") return;
 
-    const newId = modules.length + 1;
-    const module = { id: newId, name: newModule, color: newModuleColor || "gray.300" };
-    setModules([...modules, module]);
-    MODULES.push(module); // Update the MODULES array directly
-    setNewModule("");
-    setNewModuleColor("");
+    try {
+      const response = await axios.post("http://localhost:5000/modules", {
+        moduleName: newModule
+      });
+      const module = { moduleName: newModule || "gray.300" };
+      setModules([...modules, module]);
+      setNewModule("");
+    } catch (error) {
+      console.error("Error adding module:", error);
+    }
   };
 
-  const handleEditModule = () => {
+  const handleEditModule = async () => {
     if (editModuleName.trim() === "") return;
 
-    const updatedModules = modules.map((module) =>
-      module.id === editModuleId
-        ? { ...module, name: editModuleName, color: editModuleColor || module.color }
-        : module
-    );
-    setModules(updatedModules);
+    try {
+      await axios.put(`http://localhost:5000/modules/${editModuleId}`, {
+        moduleName: editModuleName,
+      });
 
-    // Update the MODULES array directly
-    const moduleIndex = MODULES.findIndex((module) => module.id === editModuleId);
-    if (moduleIndex > -1) {
-      MODULES[moduleIndex] = { id: editModuleId, name: editModuleName, color: editModuleColor || MODULES[moduleIndex].color };
+      const updatedModules = modules.map((module) =>
+        module.id === editModuleId
+          ? { ...module, moduleName: editModuleName }
+          : module
+      );
+      setModules(updatedModules);
+      setEditModuleId(null);
+      setEditModuleName("");
+    } catch (error) {
+      console.error("Error updating module:", error);
     }
-
-    // Update all rows in the table with the renamed module
-    table.options.data.forEach((rowData, index) => {
-      if (rowData[column.id]?.id === editModuleId) {
-        updateData(index, column.id, MODULES[moduleIndex]);
-      }
-    });
-
-    setEditModuleId(null);
-    setEditModuleName("");
-    setEditModuleColor("");
   };
 
   const startEditing = (module, event) => {
     event.stopPropagation(); // Prevent the menu from closing
     setEditModuleId(module.id);
     setEditModuleName(module.name);
-    setEditModuleColor(module.color);
+
   };
 
   return (
@@ -70,20 +90,20 @@ const ModuleCell = ({ getValue, row, column, table }) => {
         textAlign="left"
         p={1.5}
       >
-        {name || "Select Module"}
+        {modulename || "Select Module"}
       </MenuButton>
       <MenuList>
         <MenuItem onClick={() => updateData(row.index, column.id, null)}>
           <ColorIcon color="red.400" mr={3} />
-          None
+
         </MenuItem>
         {modules.map((module) => (
           <MenuItem
-            onClick={(e) => updateData(row.index, column.id, module)}
+            onClick={() => updateData(row.index, column.id, module)}
             key={module.id}
           >
             <ColorIcon color={module.color} mr={3} />
-            {module.name}
+            {module.moduleName}
             <Button ml={3} size="xs" onClick={(e) => startEditing(module, e)}>Edit</Button>
           </MenuItem>
         ))}
@@ -96,12 +116,6 @@ const ModuleCell = ({ getValue, row, column, table }) => {
                 onChange={(e) => setEditModuleName(e.target.value)}
                 mb={2}
               />
-              <Input
-                placeholder="Edit module color"
-                value={editModuleColor}
-                onChange={(e) => setEditModuleColor(e.target.value)}
-                mb={2}
-              />
               <Button onClick={handleEditModule} colorScheme="blue">Save Changes</Button>
             </>
           ) : (
@@ -110,12 +124,6 @@ const ModuleCell = ({ getValue, row, column, table }) => {
                 placeholder="New module name"
                 value={newModule}
                 onChange={(e) => setNewModule(e.target.value)}
-                mb={2}
-              />
-              <Input
-                placeholder="New module color"
-                value={newModuleColor}
-                onChange={(e) => setNewModuleColor(e.target.value)}
                 mb={2}
               />
               <Button onClick={handleAddModule} colorScheme="blue" isDisabled={!newModule.trim()}>Add Module</Button>

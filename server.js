@@ -13,12 +13,23 @@ app.use(
   })
 );
 
+app.get("/tasks/status", async (req, res) => {
+  try {
+    const pool = await poolPromise;
+    const result = await pool.request().query("SELECT status FROM tasks");
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.status(500).send("Server error");
+  }
+});
+
 //endpoints for users tableskidoodles
 //read users
 app.get("/users", async (req, res) => {
   try {
     const pool = await poolPromise;
-    const result = await pool.request().query("SELECT * FROM users");
+    const result = await pool.request().query("SELECT firstName FROM users");
     res.json(result.recordset);
   } catch (err) {
     console.error("Error fetching users:", err);
@@ -92,7 +103,7 @@ app.get("/projects", async (req, res) => {
     const pool = await poolPromise;
     const result = await pool
       .request()
-      .query("SELECT * FROM projects ORDER BY projectID ASC");
+      .query("SELECT project, projectDescription FROM projects");
     res.json(result.recordset);
   } catch (err) {
     console.error("Error fetching projects:", err);
@@ -100,6 +111,17 @@ app.get("/projects", async (req, res) => {
   }
 });
 
+//read project name only
+app.get("/projects/name", async (req, res) => {
+  try {
+    const pool = await poolPromise;
+    const result = await pool.request().query("SELECT project FROM projects");
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("Error fetching projects:", err);
+    res.status(500).send("Server error");
+  }
+});
 //create project
 app.post("/projects", async (req, res) => {
   const { projectDescription, project } = req.body;
@@ -162,7 +184,7 @@ app.delete("/projects/:id", async (req, res) => {
 app.get("/modules", async (req, res) => {
   try {
     const pool = await poolPromise;
-    const result = await pool.request().query("SELECT * FROM modules");
+    const result = await pool.request().query("SELECT moduleName FROM modules");
     res.json(result.recordset);
   } catch (err) {
     console.error("Error fetching modules:", err);
@@ -178,10 +200,7 @@ app.post("/modules", async (req, res) => {
     await pool
       .request()
       .input("moduleName", sql.VarChar, moduleName)
-      .input("projectID", sql.Int, projectID)
-      .query(
-        "INSERT INTO modules (moduleName, projectID) VALUES (@moduleName, @projectID)"
-      );
+      .query("INSERT INTO modules (moduleName) VALUES (@moduleName)");
     res.status(201).send("Module created");
   } catch (err) {
     console.error("Error creating module:", err);
@@ -235,7 +254,7 @@ app.get("/tasks/getallproject", async (req, res) => {
     const result = await pool
       .request()
       .query(
-        "select projectID as project,moduleID as module, task, status, targetDate as due, notes, userID as incharge from tasks"
+        "select projects.projectDescription,projects.project, modules.moduleName,users.firstName,t.* from tasks as t LEFT JOIN projects on t.projectID = projects.projectID LEFT JOIN modules on t.moduleID = modules.moduleID LEFT JOIN users on t.userID = users.userID;"
       );
     res.json(result.recordset);
   } catch (err) {
