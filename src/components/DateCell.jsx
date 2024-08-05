@@ -9,7 +9,7 @@ const DateCustomInput = forwardRef(({ value, onClick, clearDate }, ref) => (
     {value ? (
       <>
         {value}
-        {/* <Box
+        <Box
           pos="absolute"
           right={3}
           fontSize="md"
@@ -20,7 +20,7 @@ const DateCustomInput = forwardRef(({ value, onClick, clearDate }, ref) => (
           }}
         >
           &times;
-        </Box> */}
+        </Box>
       </>
     ) : (
       <Icon as={CalendarIcon} fontSize="xl" />
@@ -31,18 +31,24 @@ const DateCustomInput = forwardRef(({ value, onClick, clearDate }, ref) => (
 const DateCell = ({ getValue, row, column, table }) => {
   const date = getValue();
   const { updateData } = table.options.meta;
+
+  const handleChange = (selectedDate) => {
+    updateData(row.index, column.id, selectedDate);
+  };
+
   return (
     <DatePicker
       wrapperClassName="date-wrapper"
       dateFormat="MM/dd/yyyy"
       selected={date}
-      onChange={(date) => updateData(row.index, column.id, date)}
+      onChange={handleChange}
       customInput={
         <DateCustomInput
-          clearDate={() => updateData(row.index, column.id, null)}
+          clearDate={() => handleChange(null)}
         />
       }
     />
   );
 };
+
 export default DateCell;

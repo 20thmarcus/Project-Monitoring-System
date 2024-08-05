@@ -1,11 +1,13 @@
 import { Box, Menu, MenuButton, MenuItem, MenuList, Text, useToast } from "@chakra-ui/react";
-import { STATUSES } from "../data";
+
+const STATUS_PENDING = { id: 0, name: "Pending", color: "blue.300" };
+const STATUS_IN_PROGRESS = { id: 1, name: "In-Progress", color: "yellow.400" };
+const STATUS_DONE = { id: 2, name: "Done", color: "pink.300" };
+const STATUSES = [STATUS_PENDING, STATUS_IN_PROGRESS, STATUS_DONE];
 
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="12px" h="12px" bg={color} borderRadius="3px" {...props} />
 );
-
-//I want the 
 
 const Pill = ({ color, children }) => (
   <Box
@@ -13,7 +15,6 @@ const Pill = ({ color, children }) => (
     py={0.5}
     bg={color || "transparent"}
     borderRadius="15px"
-    // display="inline-flex"
     align="center"
   >
     <Text color="gray.900" fontWeight="bold">
@@ -23,27 +24,38 @@ const Pill = ({ color, children }) => (
 );
 
 const StatusCell = ({ getValue, row, column, table }) => {
-  const { name, color } = getValue() || {};
+  const statusValue = getValue();
   const { updateData } = table.options.meta;
   const toast = useToast();
 
-  const handleStatusChange = (status) => {
-    const { module, task, budgetHours, targetDate, incharge } = row.original;
-    if (
-      status.name === "In-Progress" || status.name === "Done"
-    ) {
-      if (!module || !task || !budgetHours || !targetDate || !incharge) {
-        toast({
-          title: "Missing Information",
-          description: "Please fill in all required fields before changing the status.",
-          status: "warning",
-          duration: 3000,
-          isClosable: true,
-        });
-        return;
-      }
+  // Ensure statusValue is a string
+  const statusValueStr = (statusValue || '').toString().toLowerCase();
+
+  // Find the matching status based on the status value from the database, default to STATUS_PENDING if not found
+  const { name, color } = STATUSES.find(
+    (status) => status.name.toLowerCase() === statusValueStr
+  ) || STATUSES[0]; // Default to STATUS_PENDING
+
+  const handleStatusChange = async (status) => {
+    try {
+      await updateData(row.index, column.id, status.name); // Pass the status name
+      toast({
+        title: "Status Updated",
+        description: `Status updated to ${status.name}`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update status.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
-    updateData(row.index, column.id, status);
   };
 
   return (
@@ -59,12 +71,8 @@ const StatusCell = ({ getValue, row, column, table }) => {
         <Pill color={color}>{name}</Pill>
       </MenuButton>
       <MenuList>
-
         {STATUSES.map((status) => (
-          <MenuItem
-            onClick={() => handleStatusChange(status)}
-            key={status.id}
-          >
+          <MenuItem onClick={() => handleStatusChange(status)} key={status.id}>
             <ColorIcon color={status.color} mr={3} />
             {status.name}
           </MenuItem>

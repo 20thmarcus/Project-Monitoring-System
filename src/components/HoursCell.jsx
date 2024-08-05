@@ -19,10 +19,6 @@ const HoursCell = ({ getValue, row, column, table }) => {
     setValue(initialValue);
   }, [initialValue]);
 
-  useEffect(() => {
-    onBlur();
-  }, [value]);
-
   return (
     <NumberInput
       value={value}

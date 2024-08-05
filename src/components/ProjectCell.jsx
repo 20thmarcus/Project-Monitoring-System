@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text } from "@chakra-ui/react";
 import axios from "axios";
 
@@ -13,9 +13,8 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
   const [editProjectDescription, setEditProjectDescription] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
 
+  // Fetch projects only once when the component mounts
   useEffect(() => {
-    // alert(projectID)
-
     const fetchProjects = async () => {
       try {
         const response = await axios.get("http://localhost:5000/projects");
@@ -24,22 +23,18 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
         console.error("Error fetching projects:", error);
       }
     };
-    const fetchProjectDescription = async () => { 
-      try { 
-        setProjectDescription(projectDesc); 
-      } 
-      catch (error) { 
-        console.error("Error fetching project description:", error); 
-      } };
 
     fetchProjects();
+  }, []);
 
-    if(projectDesc){
-      fetchProjectDescription();
+  // Fetch project description only when projectDesc changes
+  useEffect(() => {
+    if (projectDesc) {
+      setProjectDescription(projectDesc);
     }
   }, [projectDesc]);
 
-  const handleAddProject = async () => {
+  const handleAddProject = useCallback(async () => {
     if (newProject.trim() === "") return;
 
     try {
@@ -47,35 +42,38 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
         project: newProject,
         projectDescription: newProjectDescription || "No description",
       });
-      const project = { project: newProject, projectDescription: newProjectDescription || "No description" };
-      setProjects([...projects, project]);
+      const project = { id: response.data.id, project: newProject, projectDescription: newProjectDescription || "No description" };
+      setProjects(prevProjects => [...prevProjects, project]);
       setNewProject("");
       setNewProjectDescription("");
     } catch (error) {
-      console.error("Error ", error);
+      console.error("Error adding project:", error);
     }
-  };
-  const handleEditProject = async () => {
+  }, [newProject, newProjectDescription]);
+
+  const handleEditProject = useCallback(async () => {
     if (editProjectName.trim() === "") return;
+
     try {
       await axios.put(`http://localhost:5000/projects/${editProjectId}`, {
         project: editProjectName,
         projectDescription: editProjectDescription || "No description",
       });
 
-      const updatedProjects = projects.map((project) =>
-        project.id === editProjectId
-          ? { ...project, project: editProjectName, projectDescription: editProjectDescription || project.projectDescription }
-          : project
+      setProjects(prevProjects =>
+        prevProjects.map(project =>
+          project.id === editProjectId
+            ? { ...project, project: editProjectName, projectDescription: editProjectDescription || project.projectDescription }
+            : project
+        )
       );
-      setProjects(updatedProjects);
       setEditProjectId(null);
       setEditProjectName("");
       setEditProjectDescription("");
     } catch (error) {
       console.error("Error updating project:", error);
     }
-  };
+  }, [editProjectId, editProjectName, editProjectDescription]);
 
   const startEditing = (project, event) => {
     event.stopPropagation(); // Prevent the menu from closing
@@ -87,6 +85,7 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
   return (
     <Menu isLazy offset={[0, 0]} flip={false} autoSelect={false}>
       <MenuButton
+        as={Box}
         h="100%"
         w="100%"
         textAlign="left"
@@ -100,12 +99,20 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
         </MenuItem>
         {projects.map((project, index) => (
           <MenuItem
-            onClick={() => updateData(row.index, column.id, project)}
+            onClick={() => updateData(row.index, column.id, project.project)}
             key={project.id || index}
           >
-            {project.project}
-            <Text ml={3}>{project.projectDescription}</Text>
-            <Button ml={3} size="xs" onClick={(e) => startEditing(project, e)}>Edit</Button>
+            <Text as="span">{project.project}</Text>
+            <Text ml={3} as="span">{project.projectDescription}</Text>
+            <Box
+              ml={3}
+              as="span"
+              cursor="pointer"
+              color="blue.500"
+              onClick={(e) => startEditing(project, e)}
+            >
+              Edit
+            </Box>
           </MenuItem>
         ))}
         <Box p={3}>

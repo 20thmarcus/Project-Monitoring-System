@@ -1,42 +1,42 @@
-import { useState, useEffect } from "react";
-import { Box, Button, Icon } from "@chakra-ui/react";
+import { useState, useEffect } from 'react';
+import { Box, Button, Icon } from '@chakra-ui/react';
 import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import DATA, { STATUSES } from "../data";
-import EditableCell from "./EditableCell";
-import StatusCell from "./StatusCell";
-import DateCell from "./DateCell";
-import Filters from "./Filters";
-import SortIcon from "./icons/SortIcon";
-import HoursCell from "./HoursCell";
-import ModuleCell from "./ModuleCell";
-import InChargeCell from "./InChargeCell";
-import LeadTimeCell from "./LeadTimeCell";
-import ProjectCell from "./ProjectCell";
-import axios from "axios";
+} from '@tanstack/react-table';
+import axios from 'axios';
+import EditableCell from './EditableCell';
+import StatusCell from './StatusCell';
+import DateCell from './DateCell';
+import Filters from './Filters';
+import SortIcon from './icons/SortIcon';
+import HoursCell from './HoursCell';
+import ModuleCell from './ModuleCell';
+import InChargeCell from './InChargeCell';
+import LeadTimeCell from './LeadTimeCell';
+import ProjectCell from './ProjectCell';
+import { STATUSES } from '../data';
 
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="16px" h="16px" bg={color} borderRadius="3px" {...props} />
 );
 
 const TaskTable = ({ onDataUpdate }) => {
-  const [data, setData] = useState(DATA);
+  const [data, setData] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [isSaved, setIsSaved] = useState(data.map(() => true));
-
-  useEffect(() => {
-    setFilteredData(data);
-  }, [data]);
+  const [isSaved, setIsSaved] = useState([]);
 
   useEffect(() => {
     readTable();
   }, []);
+
+  useEffect(() => {
+    setFilteredData(data);
+  }, [data]);
 
   const validateRow = (row) => {
     if (!row.module || !row.task || !row.budgetHours || !row.targetDate || !row.status) {
@@ -61,16 +61,14 @@ const TaskTable = ({ onDataUpdate }) => {
   const deleteRow = async (taskId) => {
     try {
       await axios.delete(`http://localhost:5000/tasks/${taskId}`);
-      console.log("Deleting task:", taskId);
+      console.log('Deleting task:', taskId);
 
-      // Update state to remove the deleted task
       setData((prev) => {
         const newData = prev.filter((task) => task.taskID !== taskId);
         saveData(newData);
         return newData;
       });
 
-      // Optionally, reset column filters if needed
       setColumnFilters([]);
     } catch (error) {
       console.error('Error:', error);
@@ -79,7 +77,7 @@ const TaskTable = ({ onDataUpdate }) => {
 
   const readTable = async () => {
     try {
-      const response = await fetch('http://localhost:5000/tasks/getallproject', { method: "GET" });
+      const response = await fetch('http://localhost:5000/tasks/getallproject', { method: 'GET' });
       const data = await response.json();
       setData(data);
     } catch (error) {
@@ -89,19 +87,20 @@ const TaskTable = ({ onDataUpdate }) => {
 
   const columns = [
     {
-      accessorKey: "validationStatus",
-      header: "",
+      accessorKey: 'validationStatus',
+      header: '',
       size: 1,
       cell: ({ row }) => (
         <ColorIcon
-          color={isSaved[row.index] ? "green.400" : "red.400"}
+          color={isSaved[row.index] ? 'green.400' : 'red.400'}
           mr={3}
         />
       ),
     },
     {
-      accessorKey: "project",
-      header: "Project",
+      accessorKey: 'project',
+      header: 'Project',
+      // cell: ProjectCell,
       cell: ({ row, column, table }) => (
         <ProjectCell
           getValue={() => row.original[column.id]}
@@ -109,6 +108,7 @@ const TaskTable = ({ onDataUpdate }) => {
           column={column}
           table={table}
           projectDesc={row.original.project}
+          taskId={row.original.taskID}
         />
       ),
       enableSorting: false,
@@ -120,9 +120,10 @@ const TaskTable = ({ onDataUpdate }) => {
       },
     },
     {
-      accessorKey: "module",
-      header: "Module",
+      accessorKey: 'module',
+      header: 'Module',
       size: 200,
+      // cell: ModuleCell,
       cell: ({ row, column, table }) => (
         <ModuleCell
           getValue={() => row.original[column.id]}
@@ -135,28 +136,35 @@ const TaskTable = ({ onDataUpdate }) => {
       enableColumnFilter: true,
     },
     {
-      accessorKey: "task",
-      header: "Task",
+      accessorKey: 'task',
+      header: 'Task',
       size: 200,
-      cell: EditableCell,
+      cell: ({ row, column }) => (
+        <EditableCell
+          getValue={() => row.getValue(column.id)}
+          row={row}
+          column={column}
+          table={table}
+        />
+      ),
       enableColumnFilter: true,
-      filterFn: "includesString",
+      filterFn: 'includesString',
     },
     {
-      accessorKey: "budgetHours",
-      header: "Budget Hours",
+      accessorKey: 'budgetHours',
+      header: 'Budget Hours',
       cell: HoursCell,
       enableColumnFilter: true,
-      filterFn: "includesString",
+      filterFn: 'includesString',
     },
     {
-      accessorKey: "targetDate",
-      header: "Target Date",
+      accessorKey: 'targetDate',
+      header: 'Target Date',
       cell: DateCell,
     },
     {
-      accessorKey: "status",
-      header: "Status",
+      accessorKey: 'status',
+      header: 'Status',
       cell: StatusCell,
       enableSorting: false,
       enableColumnFilter: true,
@@ -167,8 +175,9 @@ const TaskTable = ({ onDataUpdate }) => {
       },
     },
     {
-      accessorKey: "incharge",
-      header: "In-Charge",
+      accessorKey: 'incharge',
+      header: 'In-Charge',
+      // cell: InChargeCell,
       cell: ({ row, column, table }) => (
         <InChargeCell
           getValue={() => row.original[column.id]}
@@ -187,38 +196,38 @@ const TaskTable = ({ onDataUpdate }) => {
       },
     },
     {
-      accessorKey: "startDate",
-      header: "Start Date",
+      accessorKey: 'startDate',
+      header: 'Start Date',
       cell: DateCell,
     },
     {
-      accessorKey: "endDate",
-      header: "End Date",
+      accessorKey: 'endDate',
+      header: 'End Date',
       cell: DateCell,
     },
     {
-      accessorKey: "actualHours",
-      header: "Actual Hours",
+      accessorKey: 'actualHours',
+      header: 'Actual Hours',
       cell: HoursCell,
       enableColumnFilter: true,
-      filterFn: "includesString",
+      filterFn: 'includesString',
     },
     {
-      accessorKey: "leadTime",
-      header: "Lead Time",
+      accessorKey: 'leadTime',
+      header: 'Lead Time',
       cell: LeadTimeCell,
       enableColumnFilter: true,
-      filterFn: "includesString",
+      filterFn: 'includesString',
     },
     {
-      accessorKey: "notes",
-      header: "Notes",
+      accessorKey: 'notes',
+      header: 'Notes',
       size: 200,
       cell: EditableCell,
     },
     {
-      accessorKey: "delete",
-      header: "Delete",
+      accessorKey: 'delete',
+      header: 'Delete',
       cell: ({ row }) => (
         <Button size="sm" colorScheme="red" onClick={() => deleteRow(row.original.taskID)}>
           Delete
@@ -236,9 +245,9 @@ const TaskTable = ({ onDataUpdate }) => {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    columnResizeMode: "onChange",
+    columnResizeMode: 'onChange',
     meta: {
-      updateData: (rowIndex, columnId, value) =>
+      updateData: async (rowIndex, columnId, value) => {
         setData((prev) => {
           const newData = prev.map((row, index) =>
             index === rowIndex
@@ -250,32 +259,44 @@ const TaskTable = ({ onDataUpdate }) => {
           );
           saveData(newData);
           return newData;
-        }),
+        });
+
+        const row = filteredData[rowIndex];
+        try {
+          await axios.put(`http://localhost:5000/tasks/${row.taskID}`, {
+            ...row,
+            [columnId]: value,
+          });
+          console.log('Data updated successfully');
+        } catch (error) {
+          console.error('Error updating data:', error);
+        }
+      },
     },
   });
 
   const addRow = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/tasks");
-      setProjects(response.data);
+      const response = await axios.post('http://localhost:5000/tasks');
+      // setProjects(response.data);
     } catch (error) {
-      console.error("Error fetching projects:", error);
+      console.error('Error fetching projects:', error);
     }
     setData((prev) => [
       ...prev,
       {
-        project: "",
-        module: "",
-        task: "",
-        budgetHours: "",
-        targetDate: "",
-        status: "",
-        incharge: "",
-        startDate: "",
-        endDate: "",
-        actualHours: "",
-        leadTime: "",
-        notes: ""
+        project: '',
+        module: '',
+        task: '',
+        budgetHours: '',
+        targetDate: '',
+        status: 'pending',
+        incharge: '',
+        startDate: '',
+        endDate: '',
+        actualHours: '',
+        leadTime: '',
+        notes: '',
       },
     ]);
     setIsSaved((prev) => [...prev, false]);
@@ -311,15 +332,15 @@ const TaskTable = ({ onDataUpdate }) => {
                 )}
                 {
                   {
-                    asc: " 🔼",
-                    desc: " 🔽",
+                    asc: ' 🔼',
+                    desc: ' 🔽',
                   }[header.column.getIsSorted()]
                 }
                 <Box
                   onMouseDown={header.getResizeHandler()}
                   onTouchStart={header.getResizeHandler()}
                   className={`resizer ${
-                    header.column.getIsResizing() ? "isResizing" : ""
+                    header.column.getIsResizing() ? 'isResizing' : ''
                   }`}
                 />
               </Box>

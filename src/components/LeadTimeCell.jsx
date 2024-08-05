@@ -8,7 +8,6 @@ import {
 import { useEffect, useState } from "react";
 
 const LeadTimeCell = ({ getValue, row, column, table }) => {
-  // Ensure initial value is a number
   const initialValue = getValue() ?? 0;
   const [value, setValue] = useState(initialValue);
 
@@ -19,10 +18,6 @@ const LeadTimeCell = ({ getValue, row, column, table }) => {
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
-
-  useEffect(() => {
-    onBlur();
-  }, [value]);
 
   return (
     <NumberInput
