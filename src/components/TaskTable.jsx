@@ -34,6 +34,8 @@ const TaskTable = ({ onDataUpdate }) => {
     readTable();
   }, []);
 
+  
+
   useEffect(() => {
     setFilteredData(data);
   }, [data]);
@@ -248,19 +250,6 @@ const TaskTable = ({ onDataUpdate }) => {
     columnResizeMode: 'onChange',
     meta: {
       updateData: async (rowIndex, columnId, value) => {
-        setData((prev) => {
-          const newData = prev.map((row, index) =>
-            index === rowIndex
-              ? {
-                  ...prev[rowIndex],
-                  [columnId]: value,
-                }
-              : row
-          );
-          saveData(newData);
-          return newData;
-        });
-
         const row = filteredData[rowIndex];
         try {
           await axios.put(`http://localhost:5000/tasks/${row.taskID}`, {
@@ -268,17 +257,32 @@ const TaskTable = ({ onDataUpdate }) => {
             [columnId]: value,
           });
           console.log('Data updated successfully');
+  
+          setData((prev) => {
+            const newData = prev.map((row, index) =>
+              index === rowIndex
+                ? {
+                    ...prev[rowIndex],
+                    [columnId]: value,
+                  }
+                : row
+            );
+            saveData(newData);
+            return newData;
+          });
         } catch (error) {
           console.error('Error updating data:', error);
         }
       },
     },
   });
+  
 
   const addRow = async () => {
     try {
       const response = await axios.post('http://localhost:5000/tasks');
       // setProjects(response.data);
+      readTable();
     } catch (error) {
       console.error('Error fetching projects:', error);
     }
@@ -290,7 +294,7 @@ const TaskTable = ({ onDataUpdate }) => {
         task: '',
         budgetHours: '',
         targetDate: '',
-        status: 'Pending',
+        status: STATUSES[0],
         incharge: '',
         startDate: '',
         endDate: '',

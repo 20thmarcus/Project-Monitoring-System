@@ -28,7 +28,7 @@ const App = () => {
 
   return (
     <>
-      <Box>z
+      <Box>
         <Header 
           componentName={selectedComponent} 
           onOpenSidebar={onOpen} 
@@ -38,9 +38,9 @@ const App = () => {
       </Box>
       <Box>
         {showDashboard ? (
-          <Dashboard data={taskData} />  // Pass task data to Dashboard
+          <Dashboard data={taskData} />  //pass task data to dashboard
         ) : (
-          <TaskTable projectID={selectedProjectID} onDataUpdate={handleDataUpdate} /> // Handle data update
+          <TaskTable projectID={selectedProjectID} onDataUpdate={handleDataUpdate} /> //handle data update
         )}
       </Box>
     </>

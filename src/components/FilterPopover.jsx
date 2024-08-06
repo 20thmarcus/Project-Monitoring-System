@@ -15,7 +15,6 @@ import { PROJECTS } from "../data";
 import { STATUSES } from "../data";
 import { PEOPLE } from "../data";
 import { ColorIcon } from "./StatusCell";
-
 const ProjectItem = ({ project, setColumnFilters, isActive }) => (
   <Flex
     align="center"
@@ -29,24 +28,17 @@ const ProjectItem = ({ project, setColumnFilters, isActive }) => (
     }}
     onClick={() =>
       setColumnFilters((prev) => {
-        const projects = prev.find((filter) => filter.id === "project")?.value;
-        if (!projects) {
-          return prev.concat({
-            id: "project",
-            value: [project.id],
-          });
+        const projects = prev.find((filter) => filter.id === "project")?.value || [];
+        if (!projects.includes(project.id)) {
+          return [...prev.filter(f => f.id !== "project"), { id: "project", value: [...projects, project.id] }];
+        } else {
+          const updatedProjects = projects.filter(p => p !== project.id);
+          if (updatedProjects.length === 0) {
+            return prev.filter(f => f.id !== "project");
+          } else {
+            return [...prev.filter(f => f.id !== "project"), { id: "project", value: updatedProjects }];
+          }
         }
-
-        return prev.map((f) =>
-          f.id === "project"
-            ? {
-                ...f,
-                value: isActive
-                  ? projects.filter((s) => s !== project.id)
-                  : projects.concat(project.id),
-              }
-            : f
-        );
       })
     }
   >
@@ -68,24 +60,17 @@ const StatusItem = ({ status, setColumnFilters, isActive }) => (
     }}
     onClick={() =>
       setColumnFilters((prev) => {
-        const statuses = prev.find((filter) => filter.id === "status")?.value;
-        if (!statuses) {
-          return prev.concat({
-            id: "status",
-            value: [status.id],
-          });
+        const statuses = prev.find((filter) => filter.id === "status")?.value || [];
+        if (!statuses.includes(status.id)) {
+          return [...prev.filter(f => f.id !== "status"), { id: "status", value: [...statuses, status.id] }];
+        } else {
+          const updatedStatuses = statuses.filter(s => s !== status.id);
+          if (updatedStatuses.length === 0) {
+            return prev.filter(f => f.id !== "status");
+          } else {
+            return [...prev.filter(f => f.id !== "status"), { id: "status", value: updatedStatuses }];
+          }
         }
-
-        return prev.map((f) =>
-          f.id === "status"
-            ? {
-                ...f,
-                value: isActive
-                  ? statuses.filter((s) => s !== status.id)
-                  : statuses.concat(status.id),
-              }
-            : f
-        );
       })
     }
   >
@@ -107,24 +92,17 @@ const InchargeItem = ({ incharge, setColumnFilters, isActive }) => (
     }}
     onClick={() =>
       setColumnFilters((prev) => {
-        const incharges = prev.find((filter) => filter.id === "incharge")?.value;
-        if (!incharges) {
-          return prev.concat({
-            id: "incharge",
-            value: [incharge.id],
-          });
+        const incharges = prev.find((filter) => filter.id === "incharge")?.value || [];
+        if (!incharges.includes(incharge.id)) {
+          return [...prev.filter(f => f.id !== "incharge"), { id: "incharge", value: [...incharges, incharge.id] }];
+        } else {
+          const updatedIncharges = incharges.filter(i => i !== incharge.id);
+          if (updatedIncharges.length === 0) {
+            return prev.filter(f => f.id !== "incharge");
+          } else {
+            return [...prev.filter(f => f.id !== "incharge"), { id: "incharge", value: updatedIncharges }];
+          }
         }
-
-        return prev.map((f) =>
-          f.id === "incharge"
-            ? {
-                ...f,
-                value: isActive
-                  ? incharges.filter((s) => s !== incharge.id)
-                  : incharges.concat(incharge.id),
-              }
-            : f
-        );
       })
     }
   >
@@ -132,6 +110,7 @@ const InchargeItem = ({ incharge, setColumnFilters, isActive }) => (
     {incharge.name}
   </Flex>
 );
+
 
 const FilterPopover = ({ columnFilters, setColumnFilters }) => {
   const filterProjects = columnFilters.find((f) => f.id === "project")?.value || [];
@@ -141,7 +120,7 @@ const FilterPopover = ({ columnFilters, setColumnFilters }) => {
   return (
     <>
 
-      <Popover isLazy>
+      {/* <Popover isLazy>
         <PopoverTrigger>
           <Button
             size="sm"
@@ -223,7 +202,7 @@ const FilterPopover = ({ columnFilters, setColumnFilters }) => {
             </VStack>
           </PopoverBody>
         </PopoverContent>
-      </Popover>
+      </Popover> */}
 
     </>
   );

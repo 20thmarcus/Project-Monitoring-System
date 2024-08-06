@@ -25,27 +25,22 @@ const Dashboard = ({ data }) => {
     }, {})
   );
 
-  const barData = data.map(task => ({
-    name: task.task,
-    hours: task.actualHours || 0,
-  }));
-
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF4C4C'];
 
   return (
     <Box>
-      <Flex direction="row" wrap="wrap" justify="space-between" mt={20}>
+      <Flex direction="row" wrap="wrap" justify="space-between" mt={20} ml={10}>
         <Box width={{ base: '100%', md: '33%' }} p={4}>
-          <Heading mb="20px">
+          <Heading mb="10px" ml="20px">
             Task Status Distribution
           </Heading>
-          <PieChart width={400} height={400}>
+          <PieChart width={400} height={400} >
             <Pie
               data={statusData}
               cx={200}
               cy={200}
               labelLine={false}
-              outerRadius={80}
+              outerRadius={70}
               fill="#8884d8"
               dataKey="value"
               label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
@@ -58,18 +53,6 @@ const Dashboard = ({ data }) => {
           </PieChart>
         </Box>
 
-        <Box width={{ base: '100%', md: '33%' }} p={4}>
-          <Heading mb="20px">
-            Hours Spent Per Task
-          </Heading>
-          <BarChart width={600} height={400} data={barData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <RechartsTooltip />
-            <Legend />
-            <Bar dataKey="hours" fill="#8884d8" />
-          </BarChart>
-        </Box>
 
         <Box width={{ base: '100%', md: '33%' }} p={4}>
           <Heading mb="20px">
@@ -81,7 +64,7 @@ const Dashboard = ({ data }) => {
               cx={200}
               cy={200}
               labelLine={false}
-              outerRadius={80}
+              outerRadius={70}
               fill="#8884d8"
               dataKey="value"
               label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}

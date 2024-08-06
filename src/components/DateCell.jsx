@@ -33,7 +33,9 @@ const DateCell = ({ getValue, row, column, table }) => {
   const { updateData } = table.options.meta;
 
   const handleChange = (selectedDate) => {
-    updateData(row.index, column.id, selectedDate);
+    // Convert selectedDate to UTC
+    const utcDate = selectedDate ? new Date(Date.UTC(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())) : null;
+    updateData(row.index, column.id, utcDate);
   };
 
   return (

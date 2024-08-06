@@ -37,6 +37,21 @@ const StatusCell = ({ getValue, row, column, table }) => {
   ) || STATUSES[0]; // Default to STATUS_PENDING
 
   const handleStatusChange = async (status) => {
+    const { project, module, task, budgetHours, targetDate, incharge } = row.original;
+    
+    if (status.name === "In-Progress" || status.name === "Done") {
+      if (!project || !module || !task || !budgetHours || !targetDate || !incharge) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required fields before changing the status.",
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+    }
+  
     try {
       await updateData(row.index, column.id, status.name); // Pass the status name
       toast({
@@ -57,7 +72,6 @@ const StatusCell = ({ getValue, row, column, table }) => {
       });
     }
   };
-
   return (
     <Menu isLazy offset={[0, 0]} flip={false} autoSelect={false}>
       <MenuButton

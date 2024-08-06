@@ -31,7 +31,7 @@ app.get("/incharges", async (req, res) => {
     const pool = await poolPromise;
     const result = await pool
       .request()
-      .query("SELECT inchargeName FROM incharges");
+      .query("SELECT inchargeName, lastName, email FROM incharges");
     res.json(result.recordset);
   } catch (err) {
     console.error("Error fetching incharges:", err);

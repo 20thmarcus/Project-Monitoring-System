@@ -128,7 +128,7 @@ const ModuleCell = ({ getValue, row, column, table, moduleN }) => {
           >
             <ColorIcon color={module.color} mr={3} />
             {module.moduleName}
-            <Button ml={3} size="xs" onClick={(e) => startEditing(module, e)}>Edit</Button>
+            {/* <Button ml={3} size="xs" onClick={(e) => startEditing(module, e)}>Edit</Button> */}
           </MenuItem>
         ))}
         <Box p={3}>

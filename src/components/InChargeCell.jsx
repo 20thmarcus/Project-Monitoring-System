@@ -10,9 +10,9 @@ const InchargeCell = ({ getValue, row, column, table, inchargeN }) => {
   const { inchargeName, color } = getValue() || {};
   const { updateData } = table.options.meta;
   const [incharges, setIncharges] = useState([]);
-  const [newIncharge, setNewIncharge] = useState("");
+  const [newIncharge, setNewIncharge] = useState({ inchargeName: "", lastName: "", email: "" });
   const [editInchargeId, setEditInchargeId] = useState(null);
-  const [editInchargeName, setEditInchargeName] = useState("");
+  const [editIncharge, setEditIncharge] = useState({ inchargeName: "", lastName: "", email: "" });
   const [inchargename, setinchargename] = useState("");
   const toast = useToast();
 
@@ -42,36 +42,32 @@ const InchargeCell = ({ getValue, row, column, table, inchargeN }) => {
   }, [inchargeN]);
 
   const handleAddIncharge = async () => {
-    if (newIncharge.trim() === "") return;
+    if (newIncharge.inchargeName.trim() === "" || newIncharge.lastName.trim() === "" || newIncharge.email.trim() === "") return;
 
     try {
-      const response = await axios.post("http://localhost:5000/incharges", {
-        inchargeName: newIncharge
-      });
-      const incharge = { id: response.data.id, inchargeName: newIncharge, color: "gray.300" };
+      const response = await axios.post("http://localhost:5000/incharges", newIncharge);
+      const incharge = { id: response.data.id, ...newIncharge, color: "gray.300" };
       setIncharges([...incharges, incharge]);
-      setNewIncharge("");
+      setNewIncharge({ inchargeName: "", lastName: "", email: "" });
     } catch (error) {
       console.error("Error adding incharge:", error);
     }
   };
 
   const handleEditIncharge = async () => {
-    if (editInchargeName.trim() === "") return;
+    if (editIncharge.inchargeName.trim() === "" || editIncharge.lastName.trim() === "" || editIncharge.email.trim() === "") return;
 
     try {
-      await axios.put(`http://localhost:5000/incharges/${editInchargeId}`, {
-        inchargeName: editInchargeName,
-      });
+      await axios.put(`http://localhost:5000/incharges/${editInchargeId}`, editIncharge);
 
       const updatedIncharges = incharges.map((incharge) =>
         incharge.id === editInchargeId
-          ? { ...incharge, inchargeName: editInchargeName }
+          ? { ...incharge, ...editIncharge }
           : incharge
       );
       setIncharges(updatedIncharges);
       setEditInchargeId(null);
-      setEditInchargeName("");
+      setEditIncharge({ inchargeName: "", lastName: "", email: "" });
     } catch (error) {
       console.error("Error updating incharge:", error);
     }
@@ -103,7 +99,7 @@ const InchargeCell = ({ getValue, row, column, table, inchargeN }) => {
   const startEditing = (incharge, event) => {
     event.stopPropagation(); // Prevent the menu from closing
     setEditInchargeId(incharge.id);
-    setEditInchargeName(incharge.inchargeName);
+    setEditIncharge({ inchargeName: incharge.inchargeName, lastName: incharge.lastName, email: incharge.email });
   };
 
   return (
@@ -127,8 +123,8 @@ const InchargeCell = ({ getValue, row, column, table, inchargeN }) => {
             key={incharge.id || index}
           >
             <ColorIcon color={incharge.color} mr={3} />
-            {incharge.inchargeName}
-            <Button ml={3} size="xs" onClick={(e) => startEditing(incharge, e)}>Edit</Button>
+            {incharge.inchargeName} {incharge.lastName} ({incharge.email})
+            {/* <Button ml={3} size="xs" onClick={(e) => startEditing(incharge, e)}>Edit</Button> */}
           </MenuItem>
         ))}
         <Box p={3}>
@@ -136,8 +132,20 @@ const InchargeCell = ({ getValue, row, column, table, inchargeN }) => {
             <>
               <Input
                 placeholder="Edit incharge name"
-                value={editInchargeName}
-                onChange={(e) => setEditInchargeName(e.target.value)}
+                value={editIncharge.inchargeName}
+                onChange={(e) => setEditIncharge({ ...editIncharge, inchargeName: e.target.value })}
+                mb={2}
+              />
+              <Input
+                placeholder="Edit last name"
+                value={editIncharge.lastName}
+                onChange={(e) => setEditIncharge({ ...editIncharge, lastName: e.target.value })}
+                mb={2}
+              />
+              <Input
+                placeholder="Edit email"
+                value={editIncharge.email}
+                onChange={(e) => setEditIncharge({ ...editIncharge, email: e.target.value })}
                 mb={2}
               />
               <Button onClick={handleEditIncharge} colorScheme="blue">Save Changes</Button>
@@ -145,13 +153,25 @@ const InchargeCell = ({ getValue, row, column, table, inchargeN }) => {
           ) : (
             <>
               <Input
-                placeholder="New incharge name"
-                value={newIncharge}
-                onChange={(e) => setNewIncharge(e.target.value)}
+                placeholder="Incharge name"
+                value={newIncharge.inchargeName}
+                onChange={(e) => setNewIncharge({ ...newIncharge, inchargeName: e.target.value })}
                 mb={2}
               />
-              <Button onClick={handleAddIncharge} colorScheme="blue" isDisabled={!newIncharge.trim()}>Add Incharge</Button>
-              {!newIncharge.trim() && <Text color="red.500" mt={2}>Incharge name is required</Text>}
+              <Input
+                placeholder="Last name"
+                value={newIncharge.lastName}
+                onChange={(e) => setNewIncharge({ ...newIncharge, lastName: e.target.value })}
+                mb={2}
+              />
+              <Input
+                placeholder="Email"
+                value={newIncharge.email}
+                onChange={(e) => setNewIncharge({ ...newIncharge, email: e.target.value })}
+                mb={2}
+              />
+              <Button onClick={handleAddIncharge} colorScheme="blue" isDisabled={!newIncharge.inchargeName.trim() || !newIncharge.lastName.trim() || !newIncharge.email.trim()}>Add Incharge</Button>
+              {(!newIncharge.inchargeName.trim() || !newIncharge.lastName.trim() || !newIncharge.email.trim()) && <Text color="red.500" mt={2}>All fields are required</Text>}
             </>
           )}
         </Box>
