@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text } from "@chakra-ui/react";
+import { useState, useEffect, useCallback } from "react";
+import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 
 const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
@@ -8,10 +8,8 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
   const [projects, setProjects] = useState([]);
   const [newProject, setNewProject] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
-  const [editProjectId, setEditProjectId] = useState(null);
-  const [editProjectName, setEditProjectName] = useState("");
-  const [editProjectDescription, setEditProjectDescription] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
+  const toast = useToast();
 
   // Fetch projects only once when the component mounts
   useEffect(() => {
@@ -50,6 +48,28 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
     }
   }, [newProject, newProjectDescription]);
 
+  const handleProjectChange = async (project) => {
+    try {
+      await updateData(row.index, column.id, project.project);
+      setProjectDescription(project.projectDescription);
+      toast({
+        title: "Project Updated",
+        description: `Project updated to ${project.project}`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error updating project:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update project.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Menu isLazy offset={[0, 0]} flip={false} autoSelect={false}>
@@ -68,7 +88,7 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
         </MenuItem>
         {projects.map((project, index) => (
           <MenuItem
-            onClick={() => updateData(row.index, column.id, project.project)}
+            onClick={() => handleProjectChange(project)}
             key={project.id || index}
           >
             <Text as="span">{project.project}</Text>
@@ -76,25 +96,22 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
           </MenuItem>
         ))}
         <Box p={3}>
-        {      
-          (
-            <>
-              <Input
-                placeholder="New project name"
-                value={newProject}
-                onChange={(e) => setNewProject(e.target.value)}
-                mb={2}
-              />
-              <Input
-                placeholder="New project description"
-                value={newProjectDescription}
-                onChange={(e) => setNewProjectDescription(e.target.value)}
-                mb={2}
-              />
-              <Button onClick={handleAddProject} colorScheme="blue" isDisabled={!newProject.trim()}>Add Project</Button>
-              {!newProject.trim() && <Text color="red.500" mt={2}>Project name is required</Text>}
-            </>
-          )}
+          <>
+            <Input
+              placeholder="New project name"
+              value={newProject}
+              onChange={(e) => setNewProject(e.target.value)}
+              mb={2}
+            />
+            <Input
+              placeholder="New project description"
+              value={newProjectDescription}
+              onChange={(e) => setNewProjectDescription(e.target.value)}
+              mb={2}
+            />
+            <Button onClick={handleAddProject} colorScheme="blue" isDisabled={!newProject.trim()}>Add Project</Button>
+            {!newProject.trim() && <Text color="red.500" mt={2}>Project name is required</Text>}
+          </>
         </Box>
       </MenuList>
     </Menu>

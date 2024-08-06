@@ -19,78 +19,80 @@ app.get("/tasks/status", async (req, res) => {
     const result = await pool.request().query("SELECT status FROM tasks");
     res.json(result.recordset);
   } catch (err) {
-    console.error("Error fetching users:", err);
+    console.error("Error fetching incharges:", err);
     res.status(500).send("Server error");
   }
 });
 
-//endpoints for users tableskidoodles
-//read users
-app.get("/users", async (req, res) => {
+//endpoints for incharges tableskidoodles
+//read incharges
+app.get("/incharges", async (req, res) => {
   try {
     const pool = await poolPromise;
-    const result = await pool.request().query("SELECT firstName FROM users");
+    const result = await pool
+      .request()
+      .query("SELECT inchargeName FROM incharges");
     res.json(result.recordset);
   } catch (err) {
-    console.error("Error fetching users:", err);
+    console.error("Error fetching incharges:", err);
     res.status(500).send("Server error");
   }
 });
 
-//create user
-app.post("/users", async (req, res) => {
-  const { firstName, lastName, email } = req.body;
+//create incharge
+app.post("/incharges", async (req, res) => {
+  const { inchargeName, lastName, email } = req.body;
   try {
     const pool = await poolPromise;
     await pool
       .request()
-      .input("firstName", sql.VarChar, firstName)
+      .input("inchargeName", sql.VarChar, inchargeName)
       .input("lastName", sql.VarChar, lastName)
       .input("email", sql.VarChar, email)
       .query(
-        "INSERT INTO users (firstName, lastName, email) VALUES (@firstName, @lastName, @email)"
+        "INSERT INTO incharges (inchargeName, lastName, email) VALUES (@inchargeName, @lastName, @email)"
       );
-    res.status(201).send("User created");
+    res.status(201).send("Incharge created");
   } catch (err) {
-    console.error("Error creating user:", err);
+    console.error("Error creating incharge:", err);
     res.status(500).send("Server error");
   }
 });
 
-//update user
-app.put("/users/:id", async (req, res) => {
+//update incharge
+app.put("/incharges/:id", async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, email } = req.body;
+  const { inchargeName, lastName, email } = req.body;
   try {
     const pool = await poolPromise;
     await pool
       .request()
       .input("id", sql.Int, id)
-      .input("firstName", sql.VarChar, firstName)
+      .input("inchargeName", sql.VarChar, inchargeName)
       .input("lastName", sql.VarChar, lastName)
       .input("email", sql.VarChar, email)
       .query(
-        "UPDATE users SET firstName = @firstName, lastName = @lastName, email = @email WHERE userID = @id"
+        "UPDATE incharges SET inchargeName = @inchargeName, lastName = @lastName, email = @email WHERE inchargeID = @id"
       );
-    res.send("User updated");
+    res.send("Incharge updated");
   } catch (err) {
-    console.error("Error updating user:", err);
+    console.error("Error updating incharge:", err);
     res.status(500).send("Server error");
   }
 });
 
-//delete user
-app.delete("/users/:id", async (req, res) => {
+//delete incharge
+app.delete("/incharges/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const pool = await poolPromise;
     await pool
       .request()
       .input("id", sql.Int, id)
-      .query("DELETE FROM users WHERE userID = @id");
-    res.send("User deleted");
+      .query("DELETE FROM incharges WHERE inchargeID = @id");
+    res.send("Incharge deleted");
   } catch (err) {
-    console.error("Error deleting user:", err);
+    console.error("Error deleting incharge:", err);
     res.status(500).send("Server error");
   }
 });
@@ -180,7 +182,7 @@ app.delete("/projects/:id", async (req, res) => {
 
 //api endpoints for modules table
 
-//read mmodules
+//read modules
 app.get("/modules", async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -254,7 +256,7 @@ app.get("/tasks/getallproject", async (req, res) => {
     const result = await pool
       .request()
       .query(
-        "select taskID, project, module, task, budgetHours, targetDate, status, user, startDate, endDate, actualHours, leadTime, notes FROM tasks;"
+        "select taskID, project, module, task, budgetHours, targetDate, status, incharge, startDate, endDate, actualHours, leadTime, notes FROM tasks;"
       );
     res.json(result.recordset);
   } catch (err) {
@@ -272,7 +274,7 @@ app.post("/tasks", async (req, res) => {
     budgetHours,
     targetDate,
     status,
-    inCharge,
+    incharge,
     startDate,
     endDate,
     actualHours,
@@ -289,14 +291,14 @@ app.post("/tasks", async (req, res) => {
       .input("budgetHours", sql.Decimal, budgetHours)
       .input("targetDate", sql.DateTime, targetDate)
       .input("status", sql.VarChar, status)
-      .input("inCharge", sql.VarChar, inCharge)
+      .input("incharge", sql.VarChar, incharge)
       .input("startDate", sql.DateTime, startDate)
       .input("endDate", sql.DateTime, endDate)
       .input("actualHours", sql.Decimal, actualHours)
       .input("leadTime", sql.Decimal, leadTime)
       .input("notes", sql.VarChar, notes)
       .query(
-        "INSERT INTO tasks (project, module, task, budgetHours, targetDate, status, inCharge, startDate, endDate, actualHours, leadTime, notes) VALUES (@project, @module, @task, @budgetHours, @targetDate, @status, @inCharge, @startDate, @endDate, @actualHours, @leadTime, @notes)"
+        "INSERT INTO tasks (project, module, task, budgetHours, targetDate, status, incharge, startDate, endDate, actualHours, leadTime, notes) VALUES (@project, @module, @task, @budgetHours, @targetDate, @status, @incharge, @startDate, @endDate, @actualHours, @leadTime, @notes)"
       );
     res.status(201).send("Task created");
   } catch (err) {
@@ -315,7 +317,7 @@ app.put("/tasks/:id", async (req, res) => {
     budgetHours,
     targetDate,
     status,
-    inCharge,
+    incharge,
     startDate,
     endDate,
     actualHours,
@@ -334,14 +336,14 @@ app.put("/tasks/:id", async (req, res) => {
       .input("budgetHours", sql.Decimal, budgetHours)
       .input("targetDate", sql.DateTime, targetDate)
       .input("status", sql.VarChar, status)
-      .input("inCharge", sql.VarChar, inCharge)
+      .input("incharge", sql.VarChar, incharge)
       .input("startDate", sql.DateTime, startDate)
       .input("endDate", sql.DateTime, endDate)
       .input("actualHours", sql.Decimal, actualHours)
       .input("leadTime", sql.Decimal, leadTime)
       .input("notes", sql.VarChar, notes)
       .query(
-        "UPDATE tasks SET project = @project, module = @module, task = @task, budgetHours = @budgetHours, targetDate = @targetDate, status = @status, inCharge = @inCharge, startDate = @startDate, endDate = @endDate, actualHours = @actualHours, leadTime = @leadTime, notes = @notes WHERE taskID = @id"
+        "UPDATE tasks SET project = @project, module = @module, task = @task, budgetHours = @budgetHours, targetDate = @targetDate, status = @status, incharge = @incharge, startDate = @startDate, endDate = @endDate, actualHours = @actualHours, leadTime = @leadTime, notes = @notes WHERE taskID = @id"
       );
 
     res.send("Task updated");

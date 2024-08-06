@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text } from "@chakra-ui/react";
+import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="12px" h="12px" bg={color} borderRadius="3px" {...props} />
 );
 
-const ModuleCell = ({ getValue, row, column, table, moduleN}) => {
+const ModuleCell = ({ getValue, row, column, table, moduleN }) => {
   const { moduleName, color } = getValue() || {};
   const { updateData } = table.options.meta;
   const [modules, setModules] = useState([]);
@@ -14,6 +14,7 @@ const ModuleCell = ({ getValue, row, column, table, moduleN}) => {
   const [editModuleId, setEditModuleId] = useState(null);
   const [editModuleName, setEditModuleName] = useState("");
   const [modulename, setmodulename] = useState("");
+  const toast = useToast();
 
   useEffect(() => {
     const fetchModules = async () => {
@@ -24,18 +25,19 @@ const ModuleCell = ({ getValue, row, column, table, moduleN}) => {
         console.error("Error fetching modules:", error);
       }
     };
-    const fetchModuleName = async () => { 
-      try { 
-        setmodulename(moduleN); 
-      } 
-      catch (error) { 
-        console.error("Error fetching project description:", error); 
-      } };
+
+    const fetchModuleName = async () => {
+      try {
+        setmodulename(moduleN);
+      } catch (error) {
+        console.error("Error fetching module name:", error);
+      }
+    };
 
     fetchModules();
 
-    if(moduleN){
-      fetchModuleName()
+    if (moduleN) {
+      fetchModuleName();
     }
   }, [moduleN]);
 
@@ -46,7 +48,7 @@ const ModuleCell = ({ getValue, row, column, table, moduleN}) => {
       const response = await axios.post("http://localhost:5000/modules", {
         moduleName: newModule
       });
-      const module = { moduleName: newModule || "gray.300" };
+      const module = { id: response.data.id, moduleName: newModule, color: "gray.300" };
       setModules([...modules, module]);
       setNewModule("");
     } catch (error) {
@@ -75,11 +77,33 @@ const ModuleCell = ({ getValue, row, column, table, moduleN}) => {
     }
   };
 
+  const handleModuleChange = async (module) => {
+    try {
+      await updateData(row.index, column.id, module.moduleName);
+      setmodulename(module.moduleName);
+      toast({
+        title: "Module Updated",
+        description: `Module updated to ${module.moduleName}`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error updating module:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update module.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   const startEditing = (module, event) => {
     event.stopPropagation(); // Prevent the menu from closing
     setEditModuleId(module.id);
-    setEditModuleName(module.name);
-
+    setEditModuleName(module.moduleName);
   };
 
   return (
@@ -95,11 +119,11 @@ const ModuleCell = ({ getValue, row, column, table, moduleN}) => {
       <MenuList>
         <MenuItem onClick={() => updateData(row.index, column.id, null)}>
           <ColorIcon color="red.400" mr={3} />
-
+          None
         </MenuItem>
         {modules.map((module, index) => (
           <MenuItem
-            onClick={() => updateData(row.index, column.id, module)}
+            onClick={() => handleModuleChange(module)}
             key={module.id || index}
           >
             <ColorIcon color={module.color} mr={3} />

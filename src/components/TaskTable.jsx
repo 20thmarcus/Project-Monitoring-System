@@ -15,7 +15,7 @@ import Filters from './Filters';
 import SortIcon from './icons/SortIcon';
 import HoursCell from './HoursCell';
 import ModuleCell from './ModuleCell';
-import InChargeCell from './InChargeCell';
+import InchargeCell from './InchargeCell';
 import LeadTimeCell from './LeadTimeCell';
 import ProjectCell from './ProjectCell';
 import { STATUSES } from '../data';
@@ -130,7 +130,7 @@ const TaskTable = ({ onDataUpdate }) => {
           row={row}
           column={column}
           table={table}
-          moduleN={row.original.moduleName}
+          moduleN={row.original.module}
         />
       ),
       enableColumnFilter: true,
@@ -177,14 +177,14 @@ const TaskTable = ({ onDataUpdate }) => {
     {
       accessorKey: 'incharge',
       header: 'In-Charge',
-      // cell: InChargeCell,
+      // cell: InchargeCell,
       cell: ({ row, column, table }) => (
-        <InChargeCell
+        <InchargeCell
           getValue={() => row.original[column.id]}
           row={row}
           column={column}
           table={table}
-          username={row.original.firstName}
+          inchargeN={row.original.incharge}
         />
       ),
       enableSorting: false,
@@ -290,7 +290,7 @@ const TaskTable = ({ onDataUpdate }) => {
         task: '',
         budgetHours: '',
         targetDate: '',
-        status: 'pending',
+        status: 'Pending',
         incharge: '',
         startDate: '',
         endDate: '',

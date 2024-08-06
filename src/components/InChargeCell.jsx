@@ -1,87 +1,109 @@
 import { useState, useEffect } from "react";
-import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text } from "@chakra-ui/react";
+import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 
 export const ColorIcon = ({ color, ...props }) => (
   <Box w="12px" h="12px" bg={color} borderRadius="3px" {...props} />
 );
 
-const InChargeCell = ({ getValue, row, column, table, username }) => {
-  const { firstName, color } = getValue() || {};
+const InchargeCell = ({ getValue, row, column, table, inchargeN }) => {
+  const { inchargeName, color } = getValue() || {};
   const { updateData } = table.options.meta;
-  const [people, setPeople] = useState([]);
-  const [newPerson, setNewPerson] = useState("");
-  const [newPersonColor, setNewPersonColor] = useState("");
-  const [editPersonId, setEditPersonId] = useState(null);
-  const [editPersonName, setEditPersonName] = useState("");
-  const [incharge, setIncharge] = useState("");
+  const [incharges, setIncharges] = useState([]);
+  const [newIncharge, setNewIncharge] = useState("");
+  const [editInchargeId, setEditInchargeId] = useState(null);
+  const [editInchargeName, setEditInchargeName] = useState("");
+  const [inchargename, setinchargename] = useState("");
+  const toast = useToast();
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchIncharges = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/users");
-        setPeople(response.data); // Fix: Use setPeople instead of setUsers
+        const response = await axios.get("http://localhost:5000/incharges");
+        setIncharges(response.data);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching incharges:", error);
       }
     };
 
-    const fetchUserName = async () => {
+    const fetchInchargeName = async () => {
       try {
-        setIncharge(username);
+        setinchargename(inchargeN);
       } catch (error) {
-        console.error("Error fetching username:", error);
+        console.error("Error fetching incharge name:", error);
       }
     };
 
-    fetchUsers();
+    fetchIncharges();
 
-    if (username) {
-      fetchUserName();
+    if (inchargeN) {
+      fetchInchargeName();
     }
-  }, [username]);
+  }, [inchargeN]);
 
-  const handleAddPerson = async () => {
-    if (newPerson.trim() === "") return;
+  const handleAddIncharge = async () => {
+    if (newIncharge.trim() === "") return;
 
     try {
-      const response = await axios.post("http://localhost:5000/users", {
-        firstName: newPerson
+      const response = await axios.post("http://localhost:5000/incharges", {
+        inchargeName: newIncharge
       });
-
-      const person = { firstName: newPerson };
-      setPeople([...people, person]);
-      setNewPerson("");
+      const incharge = { id: response.data.id, inchargeName: newIncharge, color: "gray.300" };
+      setIncharges([...incharges, incharge]);
+      setNewIncharge("");
     } catch (error) {
-      console.error("Error adding person:", error);
+      console.error("Error adding incharge:", error);
     }
   };
 
-  const handleEditPerson = async () => {
-    if (editPersonName.trim() === "") return;
+  const handleEditIncharge = async () => {
+    if (editInchargeName.trim() === "") return;
 
     try {
-      await axios.put(`http://localhost:5000/users/${editPersonId}`, {
-        firstName: editPersonName,
+      await axios.put(`http://localhost:5000/incharges/${editInchargeId}`, {
+        inchargeName: editInchargeName,
       });
 
-      const updatedPeople = people.map((person) =>
-        person.id === editPersonId
-          ? { ...person, firstName: editPersonName }
-          : person
+      const updatedIncharges = incharges.map((incharge) =>
+        incharge.id === editInchargeId
+          ? { ...incharge, inchargeName: editInchargeName }
+          : incharge
       );
-      setPeople(updatedPeople);
-      setEditPersonId(null);
-      setEditPersonName("");
+      setIncharges(updatedIncharges);
+      setEditInchargeId(null);
+      setEditInchargeName("");
     } catch (error) {
-      console.error("Error updating person:", error);
+      console.error("Error updating incharge:", error);
     }
   };
 
-  const startEditing = (person, event) => {
+  const handleInchargeChange = async (incharge) => {
+    try {
+      await updateData(row.index, column.id, incharge.inchargeName);
+      setinchargename(incharge.inchargeName);
+      toast({
+        title: "Incharge Updated",
+        description: `Incharge updated to ${incharge.inchargeName}`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error updating incharge:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update incharge.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const startEditing = (incharge, event) => {
     event.stopPropagation(); // Prevent the menu from closing
-    setEditPersonId(person.id);
-    setEditPersonName(person.firstName);
+    setEditInchargeId(incharge.id);
+    setEditInchargeName(incharge.inchargeName);
   };
 
   return (
@@ -92,44 +114,44 @@ const InChargeCell = ({ getValue, row, column, table, username }) => {
         textAlign="left"
         p={1.5}
       >
-        {incharge || "Select In-Charge"}
+        {inchargename || "Select Incharge"}
       </MenuButton>
       <MenuList>
         <MenuItem onClick={() => updateData(row.index, column.id, null)}>
           <ColorIcon color="red.400" mr={3} />
           None
         </MenuItem>
-        {people.map((person, index) => (
+        {incharges.map((incharge, index) => (
           <MenuItem
-            onClick={() => updateData(row.index, column.id, person)}
-            key={person.id || index}
+            onClick={() => handleInchargeChange(incharge)}
+            key={incharge.id || index}
           >
-            <ColorIcon color={person.color} mr={3} />
-            {person.firstName}
-            <Button ml={3} size="xs" onClick={(e) => startEditing(person, e)}>Edit</Button>
+            <ColorIcon color={incharge.color} mr={3} />
+            {incharge.inchargeName}
+            <Button ml={3} size="xs" onClick={(e) => startEditing(incharge, e)}>Edit</Button>
           </MenuItem>
         ))}
         <Box p={3}>
-          {editPersonId ? (
+          {editInchargeId ? (
             <>
               <Input
-                placeholder="Edit person name"
-                value={editPersonName}
-                onChange={(e) => setEditPersonName(e.target.value)}
+                placeholder="Edit incharge name"
+                value={editInchargeName}
+                onChange={(e) => setEditInchargeName(e.target.value)}
                 mb={2}
               />
-              <Button onClick={handleEditPerson} colorScheme="blue">Save Changes</Button>
+              <Button onClick={handleEditIncharge} colorScheme="blue">Save Changes</Button>
             </>
           ) : (
             <>
               <Input
-                placeholder="New person name"
-                value={newPerson}
-                onChange={(e) => setNewPerson(e.target.value)}
+                placeholder="New incharge name"
+                value={newIncharge}
+                onChange={(e) => setNewIncharge(e.target.value)}
                 mb={2}
               />
-              <Button onClick={handleAddPerson} colorScheme="blue" isDisabled={!newPerson.trim()}>Add Person</Button>
-              {!newPerson.trim() && <Text color="red.500" mt={2}>Person name is required</Text>}
+              <Button onClick={handleAddIncharge} colorScheme="blue" isDisabled={!newIncharge.trim()}>Add Incharge</Button>
+              {!newIncharge.trim() && <Text color="red.500" mt={2}>Incharge name is required</Text>}
             </>
           )}
         </Box>
@@ -138,4 +160,4 @@ const InChargeCell = ({ getValue, row, column, table, username }) => {
   );
 };
 
-export default InChargeCell;
+export default InchargeCell;
