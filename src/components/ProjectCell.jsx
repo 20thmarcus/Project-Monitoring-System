@@ -3,7 +3,7 @@ import { Box, Menu, MenuButton, MenuItem, MenuList, Input, Button, Text } from "
 import axios from "axios";
 
 const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
-  const { project, description } = getValue() || {};
+
   const { updateData } = table.options.meta;
   const [projects, setProjects] = useState([]);
   const [newProject, setNewProject] = useState("");
@@ -27,7 +27,6 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
     fetchProjects();
   }, []);
 
-  // Fetch project description only when projectDesc changes
   useEffect(() => {
     if (projectDesc) {
       setProjectDescription(projectDesc);
@@ -51,36 +50,6 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
     }
   }, [newProject, newProjectDescription]);
 
-  const handleEditProject = useCallback(async () => {
-    if (editProjectName.trim() === "") return;
-
-    try {
-      await axios.put(`http://localhost:5000/projects/${editProjectId}`, {
-        project: editProjectName,
-        projectDescription: editProjectDescription || "No description",
-      });
-
-      setProjects(prevProjects =>
-        prevProjects.map(project =>
-          project.id === editProjectId
-            ? { ...project, project: editProjectName, projectDescription: editProjectDescription || project.projectDescription }
-            : project
-        )
-      );
-      setEditProjectId(null);
-      setEditProjectName("");
-      setEditProjectDescription("");
-    } catch (error) {
-      console.error("Error updating project:", error);
-    }
-  }, [editProjectId, editProjectName, editProjectDescription]);
-
-  const startEditing = (project, event) => {
-    event.stopPropagation(); // Prevent the menu from closing
-    setEditProjectId(project.id);
-    setEditProjectName(project.project);
-    setEditProjectDescription(project.projectDescription);
-  };
 
   return (
     <Menu isLazy offset={[0, 0]} flip={false} autoSelect={false}>
@@ -104,35 +73,11 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
           >
             <Text as="span">{project.project}</Text>
             <Text ml={3} as="span">{project.projectDescription}</Text>
-            <Box
-              ml={3}
-              as="span"
-              cursor="pointer"
-              color="blue.500"
-              onClick={(e) => startEditing(project, e)}
-            >
-              Edit
-            </Box>
           </MenuItem>
         ))}
         <Box p={3}>
-          {editProjectId ? (
-            <>
-              <Input
-                placeholder="Edit project name"
-                value={editProjectName}
-                onChange={(e) => setEditProjectName(e.target.value)}
-                mb={2}
-              />
-              <Input
-                placeholder="Edit project description"
-                value={editProjectDescription}
-                onChange={(e) => setEditProjectDescription(e.target.value)}
-                mb={2}
-              />
-              <Button onClick={handleEditProject} colorScheme="blue">Save Changes</Button>
-            </>
-          ) : (
+        {      
+          (
             <>
               <Input
                 placeholder="New project name"
