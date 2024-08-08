@@ -34,24 +34,26 @@ const TaskTable = ({ onDataUpdate }) => {
     readTable();
   }, []);
 
-  
 
   useEffect(() => {
     setFilteredData(data);
   }, [data]);
 
   const validateRow = (row) => {
-    if (!row.module || !row.task || !row.budgetHours || !row.targetDate || !row.status) {
+    if (row.status === "Pending" && row.project && row.module && row.task && row.budgetHours && row.targetDate) {
+      return true;
+    }
+    else if (row.status === "In-Progress" && row.project && row.module && row.task && row.budgetHours && row.targetDate && row.incharge && row.startDate) {
+      return true;
+    }
+    else if (row.status === "Done" && row.project && row.module && row.task && row.budgetHours && row.targetDate && row.incharge && row.startDate && row.endDate && row.actualHours && row.notes) {
+      return true;
+    }
+    else {
       return false;
     }
-    if (row.status === STATUSES[1] && !row.startDate) {
-      return false;
-    }
-    if (row.status === STATUSES[2] && (!row.startDate || !row.endDate || !row.actualHours)) {
-      return false;
-    }
-    return true;
   };
+  
 
   const saveData = (newData) => {
     setTimeout(() => {
