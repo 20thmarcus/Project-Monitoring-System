@@ -1,12 +1,12 @@
 import sql from 'mssql';
 import dotenv from 'dotenv';
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config();
 
 const config = {
-    user: 'marcusfadrigalan',
-    password: 'marcus920',
-    server: 'LAPTOP-KL4FL4V7', //'172.20.10.7'
+    user: '',
+    password: '',
+    server: '',
     database: 'tuesdayapp',
     options: {
         trustServerCertificate: true,

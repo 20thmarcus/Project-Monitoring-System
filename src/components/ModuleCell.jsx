@@ -101,7 +101,7 @@ const ModuleCell = ({ getValue, row, column, table, moduleN }) => {
   };
 
   const startEditing = (module, event) => {
-    event.stopPropagation(); // Prevent the menu from closing
+    event.stopPropagation(); //prevent the menu from closing
     setEditModuleId(module.id);
     setEditModuleName(module.moduleName);
   };

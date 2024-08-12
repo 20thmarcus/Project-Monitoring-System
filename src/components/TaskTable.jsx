@@ -54,7 +54,6 @@ const TaskTable = ({ onDataUpdate }) => {
     }
   };
   
-
   const saveData = (newData) => {
     setTimeout(() => {
       setIsSaved(newData.map(row => validateRow(row)));

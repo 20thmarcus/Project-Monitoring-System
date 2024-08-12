@@ -27,14 +27,12 @@ const StatusCell = ({ getValue, row, column, table }) => {
   const statusValue = getValue();
   const { updateData } = table.options.meta;
   const toast = useToast();
-
-  // Ensure statusValue is a string
   const statusValueStr = (statusValue || '').toString().toLowerCase();
 
-  // Find the matching status based on the status value from the database, default to STATUS_PENDING if not found
+  //find the matching status based on the status value from the database, default to STATUS_PENDING if not found
   const { name, color } = STATUSES.find(
     (status) => status.name.toLowerCase() === statusValueStr
-  ) || STATUSES[0]; // Default to STATUS_PENDING
+  ) || STATUSES[0]; //default to STATUS_PENDING
 
   const handleStatusChange = async (status) => {
     const { project, module, task, budgetHours, targetDate, incharge } = row.original;
@@ -53,7 +51,7 @@ const StatusCell = ({ getValue, row, column, table }) => {
     }
   
     try {
-      await updateData(row.index, column.id, status.name); // Pass the status name
+      await updateData(row.index, column.id, status.name);
       toast({
         title: "Status Updated",
         description: `Status updated to ${status.name}`,

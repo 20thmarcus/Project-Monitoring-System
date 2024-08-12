@@ -52,8 +52,7 @@ const Dashboard = ({ data }) => {
             <RechartsTooltip />
           </PieChart>
         </Box>
-
-
+        
         <Box width={{ base: '100%', md: '33%' }} p={4}>
           <Heading mb="20px">
             Tasks by In-Charge

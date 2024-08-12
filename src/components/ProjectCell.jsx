@@ -11,7 +11,7 @@ const ProjectCell = ({ getValue, row, column, table, projectDesc }) => {
   const [projectDescription, setProjectDescription] = useState("");
   const toast = useToast();
 
-  // Fetch projects only once when the component mounts
+  //fetch projects only once when the component mounts
   useEffect(() => {
     const fetchProjects = async () => {
       try {

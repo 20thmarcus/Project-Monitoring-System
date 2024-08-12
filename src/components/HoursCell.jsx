@@ -6,7 +6,7 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-
+//for time
 const HoursCell = ({ getValue, row, column, table }) => {
   const initialValue = getValue() ?? 0;
   const [value, setValue] = useState(initialValue);
@@ -24,7 +24,7 @@ const HoursCell = ({ getValue, row, column, table }) => {
       value={value}
       onChange={(valueString) => {
         const newValue = parseFloat(valueString);
-        setValue(isNaN(newValue) ? 0 : newValue); // Default to 0 if NaN
+        setValue(isNaN(newValue) ? 0 : newValue); //default to 0 if nan
       }}
       onBlur={onBlur}
       variant="filled"

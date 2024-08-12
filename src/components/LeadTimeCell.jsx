@@ -24,7 +24,7 @@ const LeadTimeCell = ({ getValue, row, column, table }) => {
       value={value}
       onChange={(valueString) => {
         const newValue = parseFloat(valueString);
-        setValue(isNaN(newValue) ? 0 : newValue); // Default to 0 if NaN
+        setValue(isNaN(newValue) ? 0 : newValue); 
       }}
       onBlur={onBlur}
       variant="filled"

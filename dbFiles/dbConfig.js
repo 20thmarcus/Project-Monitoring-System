@@ -1,7 +1,7 @@
 const config = {
-    user: 'marcusfadrigalan',
-    password: 'marcus920',
-    server: 'LAPTOP-KL4FL4V7',
+    user: '',
+    password: '',
+    server: '',
     database: 'tuesdayapp',
     options: {
         trustServerCertificate: true,

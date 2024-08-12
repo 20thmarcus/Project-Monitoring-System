@@ -1,6 +1,7 @@
 import { Input } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
+//cell for inputs
 const EditableCell = ({ getValue, row, column, table }) => {
   const initialValue = getValue() ?? '';
   const [value, setValue] = useState(initialValue);
@@ -17,7 +18,7 @@ const EditableCell = ({ getValue, row, column, table }) => {
     <Input
       value={value}
       onChange={(e) => setValue(e.target.value ?? '')}
-      onBlur={onBlur} // Call onBlur when input loses focus
+      onBlur={onBlur} //onblur when input loses focus
       variant="filled"
       size="sm"
       w="85%"
